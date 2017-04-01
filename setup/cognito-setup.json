@@ -207,7 +207,7 @@
     "KinesisDataGeneratorUrl": {
       "Description": "The URL for your Kinesis Data Generator.",
       "Value": {
-        "Fn::Join": ["", ["https://s3.amazonaws.com/kinesis-data-producer-test/producer.html?", { "Fn::GetAtt": [ "SetupCognitoCustom", "Querystring" ] }]]
+        "Fn::Join": ["", ["https://awslabs.github.io/amazon-kinesis-data-generator/web/producer.html?", { "Fn::GetAtt": [ "SetupCognitoCustom", "Querystring" ] }]]
       }
     }
   }
