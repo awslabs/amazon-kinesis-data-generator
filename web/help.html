@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<!--
+Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License").
+
+You may not use this file except in compliance with the License. A copy
+of the License is located at
+
+http://aws.amazon.com/apache2.0/
+
+or in the "license" file accompanying this file. This file is distributed
+on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+either express or implied. See the License for the specific language governing
+permissions and limitations under the License.
+-->
+<html lang="en">
+<head>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <!-- font awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+    <meta charset="UTF-8">
+    <title>Kinesis Data Generator</title>
+</head>
+<body>
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="producer.html">Kinesis Data Generator</a>
+        </div>
+
+        <div class="navbar-collapse collapse navbar-right" id="navbar-main">
+            <ul class="nav navbar-nav">
+                <li><a target="_blank" href="help.html"><i class="fa fa-question-circle" ></i> Help</a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</nav>
+
+
+<div class="container" style="padding-top: 50px">
+
+    <div class="row">
+
+        <div class="col-md-9">
+            <h2 class="page-header" id="overview">Overview</h2>
+            <p class="lead">The Kinesis Data Generator makes it easy to send data to Kinesis Streams or Kinesis Firehose.  Learn how to use the tool and create templates for your records.</p>
+
+            <h2 id="configAccount" class="page-header">Configure Your AWS Account</h2>
+            <h3 id="cognitoUser" >Create an Amazon Cognito User</h3>
+
+            <p>Before you can send data to Kinesis, you must first create an <a href="https://aws.amazon.com/cognito/" target="_blank">Amazon Cognito</a>
+                user in your AWS account with permissions to access Amazon Kinesis.  To simplify this process,
+                an <a href="https://aws.amazon.com/lambda/" target="_blank">Amazon Lambda</a> function and
+                an <a href="https://aws.amazon.com/cloudformation/" target="_blank">Amazon CloudFormation</a> template
+                are provided to create the user and assign just enough permissions to use the Kinesis Data Generator.</p>
+            <p>Create the CloudFormation stack by clicking the button below.  It will take you to the AWS CloudFormation console and start the stack creation wizard.  You only need to provide
+                a Username and Password for the user that you will use to log in to the Kinesis Data Generator.  Accept the defaults for any other options presented by CloudFormation.
+            </p>
+            <br/>
+            <p>
+                <a class="btn btn-primary" target="_blank" href="https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=Kinesis-Data-Generator-Cognito-User&templateURL=https://s3-us-west-2.amazonaws.com/kinesis-helpers/cognito-setup.json" role="button">Create a Cognito User with CloudFormation</a>
+            </p>
+            <br/>
+            <p>
+                The CloudFormation template can be downloaded from <a href="https://s3-us-west-2.amazonaws.com/kinesis-helpers/cognito-setup.json">here</a>.
+                Because Amazon Cognito is not supported by CloudFormation, much of the setup is done in a Lambda function.
+                The source code for the function can be downloaded from <a href="https://s3-us-west-2.amazonaws.com/kinesis-helpers/datagen-cognito-setup.zip">here.</a>
+            </p>
+
+            <p>
+                The CloudFormation template will create the following resources in your AWS account:
+                <ul>
+                    <li>An IAM role that gives the Lambda function permission to create Cognito resources.</li>
+                    <li>An IAM role that is assigned to authenticated Cognito users.  This role has only enough permission to use the Kinesis Data Generator.</li>
+                    <li>An IAM role that is assigned to unauthenticated Cognito users.  This role has only enough permission to create Cognito analytics events.</li>
+                    <li>A Lambda function.</li>
+                </ul>
+            </p>
+            <p>
+                The Lambda function will create the following resources in your AWS account:
+                <ul>
+                    <li>A Cognito User Pool.</li>
+                    <li>A Cognito Federated Identity Pool.</li>
+                    <li>A Cognito User, with the username and password specified by you when you created the CloudFormation stack.</li>
+                    <li>The necessary relationships between the roles, users and pools.</li>
+                </ul>
+            </p>
+
+            <br/>
+
+            <h3 id="cfnOutput" >Access the Kinesis Data Generator</h3>
+            <p>
+                After the CloudFormation stack has been successfully created, you will need to use a special URL to access the
+                Kinesis Data Generator.  CloudFormation creates this URL as part of the stack generation, and you can find it
+                in the Outputs section of the CloudFormation stack.</p>
+            <p>
+                To find the URL, choose the CloudFormation stack, and then choose the Outputs tab as shown below.  Simply bookmark this URL in your browser for
+                easy future access to the Kinesis Data Generator.
+            </p>
+            <br/>
+            <p>
+                <img src="img/output.jpg" width="100%"/>
+            </p>
+
+
+
+            <h2 id="template" class="page-header">Record Template</h2>
+            <p>The Kinesis Data Generator can generate records using random data based on a template you provide.  In the Record Template textarea, provide a template that represents a single record.
+                The Kinesis Data Generator will create a unique record  based on the template, replacing your templated record with actual data.  The record template can be of any type:  json, csv, or unstructured.
+                Because of this, there is no validation of the data before it is sent to Kinesis.</p>
+            <p>The Kinesis Data Generator extends <a href="https://github.com/marak/Faker.js/">faker.js</a>, an open source random data generator.  For full documentation of the items that can be "faked" by faker.js, see the <a href="https://github.com/Marak/faker.js/blob/master/Readme.md">faker.js documentation.</a> </p>
+            <h3 id="templateExamples">Example Templates</h3>
+            <p>Data elements in a teamplate that need to be replaced for each record use moustache syntax (i.e. enclosed in double curly-braces {{ replace.this }} ).  Consider the following data record, representing somebody's first name,
+                last name, age, and IP address:</p>
+            <pre>
+John,Doe,42,127.0.0.1
+            </pre>
+            <p>The template to generate records of this type:</p>
+            <pre>
+{{name.firstName}},{{name.lastName}},{{random.number(70)}},{{internet.ip}}
+            </pre>
+            <p>Records can be represented in any data structure, such as JSON:</p>
+            <pre>
+{
+    "sensorId": 40,
+    "currentTemperature": 76,
+    "status": "OK"
+}
+            </pre>
+            <p>In this template, assume that the "status" can be only one of three items (OK, WARN, FAIL).  Also assume that we want the temperature range to be a random value between 10 and 150.  The template for this would look like:</p>
+            <pre>
+{
+    "sensorId": {{random.number(50)}},
+    "currentTemperature": {{random.number(
+        {
+            "min":10,
+            "max":150
+        }
+    )}},
+    "status": "{{random.arrayElement(
+        ["OK","FAIL","WARN"]
+    )}}"
+}
+            </pre>
+            <h3 id="additionalFunctionality">Additional Templating Functionality</h3>
+            <p>The Kinesis Data Generator supports several other templating features, in addition to the native templating provided by faker.js.</p>
+            <h4>Current Date and Time</h4>
+            <p>You can insert the current date and time into each record by including a date.now item in your record template.  The Kinesis Data Generator uses the <a href="http://momentjs.com">moment.js</a> library for datetime formatting.  Details for creating an appropriate format string for your use case can be found in the <a href="http://momentjs.com/docs/#/displaying/">moment.js documentation</a>.  Several examples are shown here:</p>
+            <pre>
+                {{date.now}}                                     // 2014-09-08T08:02:17-05:00
+                {{date.now("dddd, MMMM Do YYYY, h:mm:ss a")}}    // Sunday, February 14th 2010, 3:25:50 pm
+                {{date.now("ddd, hA")}}                          // Sun, 3PM
+                {{date.now("DD/MMM/YYYY:HH:mm:ss Z")}}           // 14/Jul/2009:20:12:22 -0700
+            </pre>
+            <h4>Weighted Array Element</h4>
+            <p>Sometimes you don't want randomness to be completely random.  You might want to to choose elements from an array, but you want the randomness to be weighted such that over time, each element is chosen a certain number of times, relative to other elements in the array.
+            To accomplish this, use random.weightedArrayElement.  It takes a JSON object as input, with that JSON object containing two attributes:  weights, and data.  Each attribute contains a single array.  The data array contains the data
+            from which you want the function to choose, and the weights array contains items representing the percentage that each corresponding element in the data array should be chosen.</p>
+            <pre>
+{{random.weightedArrayElement(
+  {
+    "weights": [0.3,0.2,0.5],
+    "data": ["cat","fish","dog"]
+  }
+)}}
+            </pre>
+
+        </div>
+    </div>
+
+</div>
+
+<br/><br/>
+
+</body>
+</html>
