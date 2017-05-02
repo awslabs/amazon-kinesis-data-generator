@@ -1,19 +1,4 @@
 <!DOCTYPE html>
-<!--
-Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License").
-
-You may not use this file except in compliance with the License. A copy
-of the License is located at
-
-http://aws.amazon.com/apache2.0/
-
-or in the "license" file accompanying this file. This file is distributed
-on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-either express or implied. See the License for the specific language governing
-permissions and limitations under the License.
--->
 <html lang="en">
 <head>
     <!-- Bootstrap -->
@@ -158,13 +143,20 @@ John,Doe,42,127.0.0.1
             <h3 id="additionalFunctionality">Additional Templating Functionality</h3>
             <p>The Kinesis Data Generator supports several other templating features, in addition to the native templating provided by faker.js.</p>
             <h4>Current Date and Time</h4>
-            <p>You can insert the current date and time into each record by including a date.now item in your record template.  The Kinesis Data Generator uses the <a href="http://momentjs.com">moment.js</a> library for datetime formatting.  Details for creating an appropriate format string for your use case can be found in the <a href="http://momentjs.com/docs/#/displaying/">moment.js documentation</a>.  Several examples are shown here:</p>
+            <p>You can insert the current date and time into each record by including a date.now and date.utc items in your record template.  The Kinesis Data Generator uses the <a href="http://momentjs.com">moment.js</a> library for datetime formatting.  Details for creating an appropriate format string for your use case can be found in the <a href="http://momentjs.com/docs/#/displaying/">moment.js documentation</a>.  Several examples are shown here:</p>
             <pre>
                 {{date.now}}                                     // 2014-09-08T08:02:17-05:00
                 {{date.now("dddd, MMMM Do YYYY, h:mm:ss a")}}    // Sunday, February 14th 2010, 3:25:50 pm
                 {{date.now("ddd, hA")}}                          // Sun, 3PM
                 {{date.now("DD/MMM/YYYY:HH:mm:ss Z")}}           // 14/Jul/2009:20:12:22 -0700
             </pre>
+            <pre>
+                {{date.utc}}
+                {{date.utc("dddd, MMMM Do YYYY, h:mm:ss a")}}
+                {{date.utc("ddd, hA")}}
+                {{date.utc("DD/MMM/YYYY:HH:mm:ss Z")}}
+            </pre>
+
             <h4>Weighted Array Element</h4>
             <p>Sometimes you don't want randomness to be completely random.  You might want to to choose elements from an array, but you want the randomness to be weighted such that over time, each element is chosen a certain number of times, relative to other elements in the array.
             To accomplish this, use random.weightedArrayElement.  It takes a JSON object as input, with that JSON object containing two attributes:  weights, and data.  Each attribute contains a single array.  The data array contains the data
@@ -184,6 +176,9 @@ John,Doe,42,127.0.0.1
 </div>
 
 <br/><br/>
+<!-- tracking pixel to get basic access metrics for this tool when it's accessed from static GitHub site.
+Remove this if you've cloned, downloaded, or branched this project for your own use. -->
+<img src="https://d3kyjbny8nji9p.cloudfront.net/trackpixel/i" border="0"/>
 
 </body>
 </html>
