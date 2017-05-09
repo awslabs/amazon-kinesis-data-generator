@@ -78,12 +78,8 @@
 
     <div class="jumbotron" id="unauthMessage" style="padding-top: 100px">
         <div class="container">
-        <h1>Kinesis Data Generator</h1>
-        <p >The Kinesis Data Generator makes it simple to send test data to your Kinesis Stream or Kinesis Firehose.
-            Sign In to get started.  If you haven't yet configured an Amazon Cognito user, view the Help section.</p>
-        <p class="lead">
-            <a class="btn btn-primary btn-lg" href="help.html" role="button">Learn more</a>
-        </p>
+        <h1>Amazon Kinesis Data Generator</h1>
+            <p >The KDG makes it simple to send test data to your Amazon Kinesis stream or Amazon Kinesis Firehose delivery stream.  Sign in to get started. If you haven't configured an Amazon Cognito user, choose <a href="help.html">Help</a>.</p>
         </div>
     </div>
 
@@ -101,21 +97,21 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="streamName" class="col-md-2 col-form-label">Stream / Firehose Name</label>
+                    <label for="streamName" class="col-md-2 col-form-label">Stream/delivery stream</label>
                     <div class="col-md-4">
                         <select class="form-control" id="streamName" >
                         </select>
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="streamName" class="col-md-2 col-form-label">Records per Second</label>
+                    <label for="streamName" class="col-md-2 col-form-label">Records per second</label>
                     <div class="col-md-4">
                         <input type="number" min="1" max="2000" step="1" class="form-control" id="putRate" placeholder="Kinesis Stream Name" value="100"  />
                     </div>
                 </div>
                 <br/>
                 <div class="form-group row">
-                    <label for="recordTemplate" class="col-md-2 col-form-label">Record Template&nbsp;&nbsp;<a target="_blank" href="help.html#template"><i class="fa fa-info-circle fa-1" style="vertical-align: middle" ></i></a></label>
+                    <label for="recordTemplate" class="col-md-2 col-form-label">Record template&nbsp;&nbsp;<a target="_blank" href="help.html#template"><i class="fa fa-info-circle fa-1" style="vertical-align: middle" ></i></a></label>
                     <div class="col-md-10">
                         <ul class="nav nav-tabs" id="template-tabs">
                             <li class="active"><a data-toggle="tab" href="#t1" id="template-tab-0" class="tab-text"></a></li>
@@ -134,8 +130,8 @@
                 </div>
                 <div class="form-group row">
                     <div class="col-md-offset-2 col-md-10">
-                        <button type="button" id="btnCreateData" class="btn btn-primary" data-toggle="modal" data-target="#dataGenModal" data-backdrop="static" data-keyboard="false" disabled>Send Data to Kinesis</button>&nbsp;
-                        <button type="button" id="btnTestTemplate" class="btn btn-default" data-toggle="modal" data-target="#dataTestModal" data-backdrop="static" data-keyboard="false">Test the Template</button>
+                        <button type="button" id="btnCreateData" class="btn btn-primary" data-toggle="modal" data-target="#dataGenModal" data-backdrop="static" data-keyboard="false" disabled>Send data</button>&nbsp;
+                        <button type="button" id="btnTestTemplate" class="btn btn-default" data-toggle="modal" data-target="#dataTestModal" data-backdrop="static" data-keyboard="false">Test template</button>
                     </div>
                 </div>
                 <div class="form-group row hidden" id="errorMessage">
