@@ -21,7 +21,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="producer.html">Kinesis Data Generator</a>
+            <a class="navbar-brand" href="producer.html">Amazon Kinesis Data Generator</a>
         </div>
 
         <div class="navbar-collapse collapse navbar-right" id="navbar-main">
@@ -41,7 +41,7 @@
 
         <div class="col-md-9">
             <h2 class="page-header" id="overview">Overview</h2>
-            <p class="lead">The Kinesis Data Generator makes it easy to send data to Kinesis Streams or Kinesis Firehose.  Learn how to use the tool and create templates for your records.</p>
+            <p class="lead">The Amazon Kinesis Data Generator (KDG) makes it easy to send data to Kinesis Streams or Kinesis Firehose.  Learn how to use the tool and create templates for your records.</p>
 
             <h2 id="configAccount" class="page-header">Configure Your AWS Account</h2>
             <h3 id="cognitoUser" >Create an Amazon Cognito User</h3>
@@ -50,9 +50,9 @@
                 user in your AWS account with permissions to access Amazon Kinesis.  To simplify this process,
                 an <a href="https://aws.amazon.com/lambda/" target="_blank">Amazon Lambda</a> function and
                 an <a href="https://aws.amazon.com/cloudformation/" target="_blank">Amazon CloudFormation</a> template
-                are provided to create the user and assign just enough permissions to use the Kinesis Data Generator.</p>
+                are provided to create the user and assign just enough permissions to use the KDG.</p>
             <p>Create the CloudFormation stack by clicking the button below.  It will take you to the AWS CloudFormation console and start the stack creation wizard.  You only need to provide
-                a Username and Password for the user that you will use to log in to the Kinesis Data Generator.  Accept the defaults for any other options presented by CloudFormation.
+                a Username and Password for the user that you will use to log in to the KDG.  Accept the defaults for any other options presented by CloudFormation.
             </p>
             <br/>
             <p>
@@ -69,7 +69,7 @@
                 The CloudFormation template will create the following resources in your AWS account:
                 <ul>
                     <li>An IAM role that gives the Lambda function permission to create Cognito resources.</li>
-                    <li>An IAM role that is assigned to authenticated Cognito users.  This role has only enough permission to use the Kinesis Data Generator.</li>
+                    <li>An IAM role that is assigned to authenticated Cognito users.  This role has only enough permission to use the KDG.</li>
                     <li>An IAM role that is assigned to unauthenticated Cognito users.  This role has only enough permission to create Cognito analytics events.</li>
                     <li>A Lambda function.</li>
                 </ul>
@@ -86,14 +86,14 @@
 
             <br/>
 
-            <h3 id="cfnOutput" >Access the Kinesis Data Generator</h3>
+            <h3 id="cfnOutput" >Access the KDG</h3>
             <p>
                 After the CloudFormation stack has been successfully created, you will need to use a special URL to access the
-                Kinesis Data Generator.  CloudFormation creates this URL as part of the stack generation, and you can find it
+                KDG.  CloudFormation creates this URL as part of the stack generation, and you can find it
                 in the Outputs section of the CloudFormation stack.</p>
             <p>
                 To find the URL, choose the CloudFormation stack, and then choose the Outputs tab as shown below.  Simply bookmark this URL in your browser for
-                easy future access to the Kinesis Data Generator.
+                easy future access to the KDG.
             </p>
             <br/>
             <p>
@@ -103,10 +103,10 @@
 
 
             <h2 id="template" class="page-header">Record Template</h2>
-            <p>The Kinesis Data Generator can generate records using random data based on a template you provide.  In the Record Template textarea, provide a template that represents a single record.
-                The Kinesis Data Generator will create a unique record  based on the template, replacing your templated record with actual data.  The record template can be of any type:  json, csv, or unstructured.
+            <p>The KDG can generate records using random data based on a template you provide.  In the Record Template textarea, provide a template that represents a single record.
+                The KDG will create a unique record  based on the template, replacing your templated record with actual data.  The record template can be of any type:  json, csv, or unstructured.
                 Because of this, there is no validation of the data before it is sent to Kinesis.</p>
-            <p>The Kinesis Data Generator extends <a href="https://github.com/marak/Faker.js/">faker.js</a>, an open source random data generator.  For full documentation of the items that can be "faked" by faker.js, see the <a href="https://github.com/Marak/faker.js/blob/master/Readme.md">faker.js documentation.</a> </p>
+            <p>The KDG extends <a href="https://github.com/marak/Faker.js/">faker.js</a>, an open source random data generator.  For full documentation of the items that can be "faked" by faker.js, see the <a href="https://github.com/Marak/faker.js/blob/master/Readme.md">faker.js documentation.</a> </p>
             <h3 id="templateExamples">Example Templates</h3>
             <p>Data elements in a teamplate that need to be replaced for each record use moustache syntax (i.e. enclosed in double curly-braces {{ replace.this }} ).  Consider the following data record, representing somebody's first name,
                 last name, age, and IP address:</p>
@@ -141,9 +141,9 @@ John,Doe,42,127.0.0.1
 }
             </pre>
             <h3 id="additionalFunctionality">Additional Templating Functionality</h3>
-            <p>The Kinesis Data Generator supports several other templating features, in addition to the native templating provided by faker.js.</p>
+            <p>The KDG supports several other templating features, in addition to the native templating provided by faker.js.</p>
             <h4>Current Date and Time</h4>
-            <p>You can insert the current date and time into each record by including a date.now and date.utc items in your record template.  The Kinesis Data Generator uses the <a href="http://momentjs.com">moment.js</a> library for datetime formatting.  Details for creating an appropriate format string for your use case can be found in the <a href="http://momentjs.com/docs/#/displaying/">moment.js documentation</a>.  Several examples are shown here:</p>
+            <p>You can insert the current date and time into each record by including a date.now and date.utc items in your record template.  The KDG uses the <a href="http://momentjs.com">moment.js</a> library for datetime formatting.  Details for creating an appropriate format string for your use case can be found in the <a href="http://momentjs.com/docs/#/displaying/">moment.js documentation</a>.  Several examples are shown here:</p>
             <pre>
                 {{date.now}}                                     // 2014-09-08T08:02:17-05:00
                 {{date.now("dddd, MMMM Do YYYY, h:mm:ss a")}}    // Sunday, February 14th 2010, 3:25:50 pm
