@@ -36,9 +36,9 @@ function init(){
     $("#clientId").val(cognitoAppClientId);
     $("#userPoolRegion").val(cognitoRegion);
 
-
     AWS.config.region = cognitoRegion;
     AWSCognito.config.region = cognitoRegion;
+    var kinesis, firehose;
 
     $("#btnCreateData").click(function () {
 
@@ -190,6 +190,7 @@ function init(){
                                     var name = data.Regions[i].RegionName;
                                     $("#region").append("<option value='" + name + "'>" + name + "</option>");
                                 }
+
                                 loadSavedTemplates(0);
                                 updateKinesisList();
 
@@ -257,6 +258,8 @@ function init(){
     function updateKinesisList() {
 
         AWS.config.region = $("#region").val();
+        kinesis = new AWS.Kinesis();
+        firehose = new AWS.Firehose();
 
         var kinesisDropDown = $("#streamName");
         kinesisDropDown.find("optgroup")
@@ -267,43 +270,84 @@ function init(){
             .end();
 
         kinesisDropDown.append("<option id='no-streams-msg'>No destinations found in this region</option>");
-
         $("#btnCreateData").prop("disabled", true);
 
-        var kinesis = new AWS.Kinesis();
-        kinesis.listStreams({}, function(err, data) {
+        updateStreamsList();
+        updateFirehoseList();
+    }
+
+    function updateStreamsList(startStream, streamArray ) {
+
+        if(streamArray === undefined) {
+            streamArray = [];
+        }
+
+        var params = {
+            Limit: 100
+        };
+        if(startStream !== undefined) {
+            params.ExclusiveStartStreamName = startStream;
+        }
+
+        kinesis.listStreams(params, function(err, data) {
             if(err) {
                 console.log(err, err.stack);
             }
             else{
-                if(data.StreamNames.length > 0) {
-                    $("#no-streams-msg").remove();
-                    var html = "<optgroup label='Kinesis Streams'>";
-                    for(var n = 0; n < data.StreamNames.length; n++) {
-                        html += "<option value='" + data.StreamNames[n] + "'>" + data.StreamNames[n] + "</option>";
+                streamArray.push.apply(streamArray, data.StreamNames);
+                if(data.HasMoreStreams) {
+                    updateStreamsList(data.StreamNames[data.StreamNames.length - 1], streamArray);
+                }
+                else {
+                    if(streamArray.length > 0) {
+                        $("#no-streams-msg").remove();
+                        var html = "<optgroup label='Kinesis Streams'>";
+                        for (var n = 0; n < streamArray.length; n++) {
+                            html += "<option value='" + streamArray[n] + "'>" + streamArray[n] + "</option>";
+                        }
+                        html += "</optgroup>";
+                        $("#btnCreateData").prop("disabled", false);
+                        $("#streamName").append(html);
                     }
-                    html += "</optgroup>";
-                    kinesisDropDown.append(html);
-                    $("#btnCreateData").prop("disabled", false);
                 }
             }
         });
 
-        var firehose = new AWS.Firehose();
-        firehose.listDeliveryStreams({}, function(err, data) {
+    }
+
+    function updateFirehoseList(startStream, streamArray) {
+
+        if(streamArray === undefined) {
+            streamArray = [];
+        }
+
+        var params = {
+            Limit: 100
+        };
+        if(startStream !== undefined) {
+            params.ExclusiveStartDeliveryStreamName = startStream;
+        }
+
+        firehose.listDeliveryStreams(params, function(err, data) {
             if(err) {
                 console.log(err, err.stack);
             }
             else{
-                if(data.DeliveryStreamNames.length > 0) {
-                    $("#no-streams-msg").remove();
-                    var html = "<optgroup label='Kinesis Firehose'>";
-                    for(var n = 0; n < data.DeliveryStreamNames.length; n++) {
-                        html += "<option value='" + data.DeliveryStreamNames[n] + "'>" + data.DeliveryStreamNames[n] + "</option>";
+                streamArray.push.apply(streamArray, data.DeliveryStreamNames);
+                if(data.HasMoreStreams) {
+                    updateFirehoseList(data.DeliveryStreamNames[data.DeliveryStreamNames.length - 1], streamArray);
+                }
+                else {
+                    if(streamArray.length > 0) {
+                        $("#no-streams-msg").remove();
+                        var html = "<optgroup label='Kinesis Firehose'>";
+                        for (var n = 0; n < streamArray.length; n++) {
+                            html += "<option value='" + streamArray[n] + "'>" + streamArray[n] + "</option>";
+                        }
+                        html += "</optgroup>";
+                        $("#btnCreateData").prop("disabled", false);
+                        $("#streamName").append(html);
                     }
-                    html += "</optgroup>";
-                    kinesisDropDown.append(html);
-                    $("#btnCreateData").prop("disabled", false);
                 }
             }
         });
@@ -345,7 +389,6 @@ function init(){
                 "StreamName": streamName
             };
 
-            var kinesis = new AWS.Kinesis();
             kinesis.putRecords(payload, function(err, data) {
                 if(err){
                     console.log(err, err.stack);
