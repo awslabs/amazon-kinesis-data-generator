@@ -13,12 +13,12 @@ on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 either express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
-const clientIdParamName = "cid",
-    userPoolIdParamName = "upid",
-    identityPoolIdParamName = "ipid",
-    cognitoRegionParamName = "r";
+const   clientIdParamName = "cid",
+        userPoolIdParamName = "upid",
+        identityPoolIdParamName = "ipid",
+        cognitoRegionParamName = "r";
 
-function init() {
+function init(){
 
     var streamName,
         streamType,
@@ -46,7 +46,7 @@ function init() {
         rate = $("#putRate").val();
         streamType = $("#streamName :selected").parent().attr("label") === "Kinesis Streams" ? "stream" : "firehose";
 
-        if (region == undefined || streamName == undefined || rate == undefined || rate == 0) {
+        if(region == undefined || streamName == undefined || rate == undefined || rate == 0) {
             $("#errorMessage").removeClass("hidden");
             return false;
         }
@@ -55,13 +55,13 @@ function init() {
         sendDataHandle = setInterval(createData, 1000);
     });
 
-    $("#btnCancelSendData").click(function () {
+    $("#btnCancelSendData").click( function() {
         clearInterval(sendDataHandle);
         totalRecordsSent = 0;
         $("#recordsSentMessage").text("0 records sent to Kinesis.");
     });
 
-    $("#logoutLink").click(function () {
+    $("#logoutLink").click( function() {
         cognitoUser.signOut();
 
         $("#password").val("");
@@ -79,7 +79,7 @@ function init() {
             identityPoolId = $("#identityPoolId").val(),
             userPoolRegion = $("#userPoolRegion").val();
 
-        if (clientId && userPoolId && identityPoolId && userPoolRegion) {
+        if(clientId && userPoolId && identityPoolId && userPoolRegion){
             $("#configErr").addClass("hidden");
             localStorage.setItem(clientIdParamName, clientId);
             localStorage.setItem(userPoolIdParamName, userPoolId);
@@ -98,25 +98,25 @@ function init() {
 
         $("#sample-records").empty();
         var template = getCleanedTemplate();
-        for (var i = 0; i < 5; i++) {
+        for(var i = 0; i < 5; i++){
             var record = faker.fake(template);
             $("#sample-records").append("<p><pre>" + record + "</pre></p>");
         }
     });
 
-    $("#password").keypress(function (e) {
-        if (e.which == 13) $("#btnLogin").trigger("click");
+    $("#password").keypress(function(e) {
+        if(e.which == 13) $("#btnLogin").trigger("click");
     });
 
-    $("#userName").keypress(function (e) {
-        if (e.which == 13) $("#btnLogin").trigger("click");
+    $("#userName").keypress(function(e) {
+        if(e.which == 13) $("#btnLogin").trigger("click");
     });
 
 
-    $("#btnLogin").click(function () {
+    $("#btnLogin").click(function() {
 
         //validate that the Cognito configuration parameters have been set
-        if (!cognitoAppClientId || !cognitoUserPoolId || !cognitoIdentityPoolId || !cognitoRegion) {
+        if(!cognitoAppClientId || !cognitoUserPoolId || !cognitoIdentityPoolId || !cognitoRegion) {
             $("#configErr").removeClass("hidden");
             $("#configureLink").trigger("click");
             return;
@@ -149,8 +149,8 @@ function init() {
         };
 
         cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-        cognitoUser.authenticateUser(authDetails, {
-            onSuccess: function (result) {
+        cognitoUser.authenticateUser( authDetails, {
+            onSuccess: function(result) {
                 console.log('access token + ' + result.getAccessToken().getJwtToken());
 
                 var logins = {};
@@ -165,15 +165,15 @@ function init() {
 
                 AWS.config.credentials = new AWS.CognitoIdentityCredentials(params);
 
-                AWS.config.credentials.get(function (refreshErr) {
-                    if (refreshErr) {
+                AWS.config.credentials.get(function(refreshErr) {
+                    if(refreshErr) {
                         console.error(refreshErr);
                     }
                     else {
                         var ec2 = new AWS.EC2();
-                        ec2.describeRegions({}, function (err, data) {
-                            if (err) {
-                                if (err.code === "UnauthorizedOperation") {
+                        ec2.describeRegions({}, function(err, data){
+                            if(err){
+                                if(err.code === "UnauthorizedOperation"){
                                     $("#permissionsErrorMessage").removeClass("hidden");
                                     $("#kinesisInfo").addClass("hidden");
                                 }
@@ -186,7 +186,7 @@ function init() {
                                 $("#signInSpinner").addClass("hidden");
 
                                 $("#region").empty();
-                                for (var i = 0; i < data.Regions.length; i++) {
+                                for(var i = 0; i < data.Regions.length; i++){
                                     var name = data.Regions[i].RegionName;
                                     $("#region").append("<option value='" + name + "'>" + name + "</option>");
                                 }
@@ -201,38 +201,38 @@ function init() {
                     }
                 });
             },
-            onFailure: function (err) {
+            onFailure: function(err) {
                 $("#logoutLink").addClass("hidden");
                 $("#loginForm").removeClass("hidden");
                 $("#signInSpinner").addClass("hidden");
 
                 alert(err);
             }
-        });
+       });
     });
 
-    $("#template-name").blur(function () {
+    $("#template-name").blur(function() {
         var index = $("ul#template-tabs li").index($("ul#template-tabs li.active"));
         updateTemplate(index);
     });
 
-    $("#recordTemplate").blur(function () {
+    $("#recordTemplate").blur(function() {
         var index = $("ul#template-tabs li").index($("ul#template-tabs li.active"));
         updateTemplate(index);
     });
 
-    $("ul#template-tabs li").click(function () {
+    $("ul#template-tabs li").click(function() {
         var index = $("ul#template-tabs li").index($(this));
         loadSavedTemplates(index);
     });
 
 
-    $("#region").change(function () {
+    $("#region").change(function() {
         updateKinesisList();
     });
 
     //Insert 4 spaces in textarea when tab is typed within the Record Template
-    $(document).delegate('#recordTemplate', 'keydown', function (e) {
+    $(document).delegate('#recordTemplate', 'keydown', function(e) {
         var keyCode = e.keyCode || e.which;
 
         if (keyCode == 9) {
@@ -276,30 +276,30 @@ function init() {
         updateFirehoseList();
     }
 
-    function updateStreamsList(startStream, streamArray) {
+    function updateStreamsList(startStream, streamArray ) {
 
-        if (streamArray === undefined) {
+        if(streamArray === undefined) {
             streamArray = [];
         }
 
         var params = {
             Limit: 100
         };
-        if (startStream !== undefined) {
+        if(startStream !== undefined) {
             params.ExclusiveStartStreamName = startStream;
         }
 
-        kinesis.listStreams(params, function (err, data) {
-            if (err) {
+        kinesis.listStreams(params, function(err, data) {
+            if(err) {
                 console.log(err, err.stack);
             }
-            else {
+            else{
                 streamArray.push.apply(streamArray, data.StreamNames);
-                if (data.HasMoreStreams) {
+                if(data.HasMoreStreams) {
                     updateStreamsList(data.StreamNames[data.StreamNames.length - 1], streamArray);
                 }
                 else {
-                    if (streamArray.length > 0) {
+                    if(streamArray.length > 0) {
                         $("#no-streams-msg").remove();
                         var html = "<optgroup label='Kinesis Streams'>";
                         for (var n = 0; n < streamArray.length; n++) {
@@ -317,28 +317,28 @@ function init() {
 
     function updateFirehoseList(startStream, streamArray) {
 
-        if (streamArray === undefined) {
+        if(streamArray === undefined) {
             streamArray = [];
         }
 
         var params = {
             Limit: 100
         };
-        if (startStream !== undefined) {
+        if(startStream !== undefined) {
             params.ExclusiveStartDeliveryStreamName = startStream;
         }
 
-        firehose.listDeliveryStreams(params, function (err, data) {
-            if (err) {
+        firehose.listDeliveryStreams(params, function(err, data) {
+            if(err) {
                 console.log(err, err.stack);
             }
-            else {
+            else{
                 streamArray.push.apply(streamArray, data.DeliveryStreamNames);
-                if (data.HasMoreStreams) {
+                if(data.HasMoreStreams) {
                     updateFirehoseList(data.DeliveryStreamNames[data.DeliveryStreamNames.length - 1], streamArray);
                 }
                 else {
-                    if (streamArray.length > 0) {
+                    if(streamArray.length > 0) {
                         $("#no-streams-msg").remove();
                         var html = "<optgroup label='Kinesis Firehose'>";
                         for (var n = 0; n < streamArray.length; n++) {
@@ -360,44 +360,40 @@ function init() {
         //clean up line breaks, and a handle older timestamp template format
         var template = getCleanedTemplate();
 
-        for (var n = 0; n < rate; n++) {
+        for(var n = 0; n < rate; n++) {
             var data = faker.fake(template);
             var record = {
                 "Data": data + '\n'
             };
-            if (streamType === "stream") {
+            if(streamType === "stream"){
                 record.PartitionKey = (Math.floor(Math.random() * (10000000000))).toString();
             }
             records.push(record);
-            if (records.length === maxRecordsTotal) {
+            if(records.length === maxRecordsTotal){
                 sendToKinesis(records);
                 records = [];
             }
         }
 
-        if (records.length > 0) {
+        if(records.length > 0){
             sendToKinesis(records);
         }
 
         $("#recordsSentMessage").text(totalRecordsSent.toString() + " records sent to Kinesis.");
     }
 
-    function sendToKinesis(data) {
-        var recordsSent = 0;
-
-        if (streamType === "stream") {
+    function sendToKinesis(data){
+        if(streamType === "stream"){
             var payload = {
                 "Records": data,
                 "StreamName": streamName
             };
 
-            kinesis.putRecords(payload, function (err, returnData) {
-                if (err) {
-                    recordsSent = data.length - returnData.FailedRecordCount;
+            kinesis.putRecords(payload, function(err, data) {
+                if(err){
                     console.log(err, err.stack);
                 }
-                else {
-                    recordsSent += data.length;
+                else{
                     console.log(data);
                 }
             });
@@ -408,24 +404,22 @@ function init() {
             };
 
             var firehose = new AWS.Firehose();
-            firehose.putRecordBatch(payload, function (err, returnData) {
-                if (err) {
-                    recordsSent += data.length - returnData.FailedPutCount;
+            firehose.putRecordBatch(payload, function(err, data) {
+                if(err) {
                     console.log(err, err.stack);
                 }
                 else {
-                    recordsSent += data.length;
                     console.log(data);
                 }
             });
         }
-        totalRecordsSent += recordsSent;
+        totalRecordsSent += data.length;
     }
 
-    function loadSavedTemplates(activeTabIndex) {
+    function loadSavedTemplates(activeTabIndex){
         var savedTemplates = JSON.parse(localStorage.getItem("templates"));
-        if (savedTemplates) {
-            for (var i = 0; i < 5; i++) {
+        if(savedTemplates) {
+            for(var i = 0; i < 5; i++){
                 $("#template-tab-" + i).html(savedTemplates[i].name);
             }
             $("#template-name").html(savedTemplates[activeTabIndex].name);
@@ -454,7 +448,7 @@ function init() {
 
 function getCongitoConfigParameterByName(name) {
     var data = getQSParameterByName(name);
-    if (data == null || data == '') {
+    if(data == null || data == '') {
         data = localStorage.getItem(name);
         return data;
     }
