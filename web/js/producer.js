@@ -13,10 +13,10 @@ on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 either express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
-const   clientIdParamName = "cid",
-        userPoolIdParamName = "upid",
-        identityPoolIdParamName = "ipid",
-        cognitoRegionParamName = "r";
+var clientIdParamName = "cid",
+    userPoolIdParamName = "upid",
+    identityPoolIdParamName = "ipid",
+    cognitoRegionParamName = "r";
 
 function init(){
 
@@ -46,7 +46,7 @@ function init(){
         rate = $("#putRate").val();
         streamType = $("#streamName :selected").parent().attr("label") === "Kinesis Streams" ? "stream" : "firehose";
 
-        if(region == undefined || streamName == undefined || rate == undefined || rate == 0) {
+        if(region === undefined || streamName === undefined || rate === undefined || rate === 0) {
             $("#errorMessage").removeClass("hidden");
             return false;
         }
@@ -105,11 +105,11 @@ function init(){
     });
 
     $("#password").keypress(function(e) {
-        if(e.which == 13) $("#btnLogin").trigger("click");
+        if(e.which === 13) $("#btnLogin").trigger("click");
     });
 
     $("#userName").keypress(function(e) {
-        if(e.which == 13) $("#btnLogin").trigger("click");
+        if(e.which === 13) $("#btnLogin").trigger("click");
     });
 
 
@@ -210,6 +210,10 @@ function init(){
             }
        });
     });
+
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    })
 
     $("#template-name").blur(function() {
         var index = $("ul#template-tabs li").index($("ul#template-tabs li.active"));
@@ -362,8 +366,16 @@ function init(){
 
         for(var n = 0; n < rate; n++) {
             var data = faker.fake(template);
+
+            if($("#zipped").is(':checked')){
+                var pako = window.pako;
+                data = pako.gzip(data);
+            } else {
+                data = data + '\n';
+            }
+
             var record = {
-                "Data": data + '\n'
+                "Data": data
             };
             if(streamType === "stream"){
                 record.PartitionKey = (Math.floor(Math.random() * (10000000000))).toString();

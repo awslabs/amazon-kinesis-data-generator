@@ -7,6 +7,9 @@
     <!-- font awesome -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
+    <!-- popper (for bootstrap tooltips) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" crossorigin="anonymous"></script>
+
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" crossorigin="anonymous">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" crossorigin="anonymous"></script>
@@ -25,12 +28,22 @@
     <!-- AWS SDK -->
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.6.6.min.js" type="text/javascript"></script>
 
+    <!-- pako, for gzip compression -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.6/pako.min.js" type="text/javascript"></script>
+
     <!-- Kinesis Data Generator -->
     <script src="js/producer.js" type="text/javascript"></script>
 
     <script type="text/javascript">
         window.onload = init;
     </script>
+
+    <style>
+        .tooltip-inner {
+            min-width: 250px; //the minimum width
+        }
+    </style>
+
     <meta charset="UTF-8">
     <title>Kinesis Data Generator</title>
 </head>
@@ -104,12 +117,20 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="streamName" class="col-md-2 col-form-label">Records per second</label>
+                    <label for="putRate" class="col-md-2 col-form-label">Records per second</label>
                     <div class="col-md-4">
                         <input type="number" min="1" max="2000" step="1" class="form-control" id="putRate" placeholder="Kinesis Stream Name" value="100"  />
                     </div>
                 </div>
                 <br/>
+                <div class="form-group row">
+                    <label for="zipped" class="col-md-2 col-form-label">Compress Records <a href="#"><i class="fa fa-info-circle fa-1" data-toggle="tooltip" data-placement="right" style="vertical-align: middle;" title="Records will be compressed with gzip compression.  This is useful if you want to simulate a producer that compresses records before sending them to Kinesis, such as a CloudWatch Logs subscription filter.  Only enable this if the stream consumer has been developed to decompress the records."></i></a></label>
+                    <div class="col-md-4">
+                        <input type="checkbox" class="form-check-input" id="zipped"  />
+                    </div>
+                </div>
+                <br/>
+
                 <div class="form-group row">
                     <label for="recordTemplate" class="col-md-2 col-form-label">Record template&nbsp;&nbsp;<a target="_blank" href="help.html#template"><i class="fa fa-info-circle fa-1" style="vertical-align: middle" ></i></a></label>
                     <div class="col-md-10">
