@@ -370,8 +370,6 @@ function init(){
             if($("#zipped").is(':checked')){
                 var pako = window.pako;
                 data = pako.gzip(data);
-            } else {
-                data = data + '\n';
             }
 
             var record = {
