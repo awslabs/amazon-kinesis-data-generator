@@ -16,7 +16,8 @@ permissions and limitations under the License.
 var clientIdParamName = "cid",
     userPoolIdParamName = "upid",
     identityPoolIdParamName = "ipid",
-    cognitoRegionParamName = "r";
+    cognitoRegionParamName = "r",
+    debugColl = [];
 
 function init(){
 
@@ -52,7 +53,7 @@ function init(){
         }
 
         $("#errorMessage").addClass("hidden");
-        sendDataHandle = setInterval(createData, 1000);
+        createData()
     });
 
     $("#btnCancelSendData").click( function() {
@@ -235,6 +236,29 @@ function init(){
         updateKinesisList();
     });
 
+    var pi = $("#periodic-inputs")
+    for(var j = 0; j <= 23; j++) {
+        var tr = $( "<tr /> " )
+        pi.append(tr)
+        var th = $( "<th scope='row'>"+j+"</th>" )
+        tr.append(th)
+        for(var k = 0; k <= 6; k++) {
+            var td = $ ( "<td />")
+            tr.append(td)
+            mInput = $( "<small>Mu:</small><input type='number' min='0' class='form-control' id='"+k+"-"+j+"-mu' value='100'/>" )
+            td.append(mInput)
+            sInput = $( "<small>Sigma:</small><input type='number' min='0' class='form-control' id='"+k+"-"+j+"-sig' value='10'/>" )
+            td.append(sInput)
+        }
+    }
+
+    $("#rate-tabs").tabs();
+
+    $(".rate-tab").on("click", function(){
+        $(".nav").find(".active").removeClass("active");
+        $(this).addClass("active");
+     });
+
     //Insert 4 spaces in textarea when tab is typed within the Record Template
     $(document).delegate('#recordTemplate', 'keydown', function(e) {
         var keyCode = e.keyCode || e.which;
@@ -358,6 +382,103 @@ function init(){
     }
 
     function createData() {
+        var currRate = $("ul#rate-tabs li.active").text()
+        console.log("Create data index "+currRate)
+
+        if (currRate == "Constant") {
+            sendDataHandle = setInterval(createDataConstant, 1000);
+        } else if (currRate == "Periodic") {
+            sendDataHandle = setInterval(createDataPeriodic, 1000);
+        }
+    }
+
+    function normal(mu, sigma) {
+        do {
+            var s1 = 2.0 * Math.random() - 1.0;
+            var s2 = 2.0 * Math.random() - 1.0;
+            var r2 = (s1 * s1) + (s2 * s2);
+        } 
+        while (r2 >= 1.0 || r2 == 0.0)
+
+        var f = Math.sqrt( -2.0 * Math.log(r2) / r2);
+        var val = f * s2;
+
+        return mu + sigma * val;
+    }
+
+    function createDataPeriodic() {
+        var now = new Date()
+        var hour = now.getHours()
+        var day = now.getDay()
+        var minute = now.getMinutes()
+    
+        var muInput = "#"+day+"-"+hour+"-mu"
+        var sigInput = "#"+day+"-"+hour+"-sig"
+
+        console.log("Using "+muInput+" "+sigInput)
+
+        var mu = parseInt($(muInput).val())
+        var sigma = parseInt($(sigInput).val())
+
+        if($("#smoothing").is(':checked')) {
+            var prevHour;
+            var prevDay;
+            var nextHour;
+            var nextDay;
+            console.log("Smoothing to...");
+            if(hour > 0) {
+                prevHour = hour - 1
+                prevDay = day
+            } else {
+                prevHour = 23
+                if(day > 0) {
+                    prevDay = day - 1
+                } else {
+                    prevDay = 6
+                }
+            }
+            if(hour < 22) {
+                nextHour = hour + 1;
+                nextDay = day;
+            } else {
+                nextHour = 0;
+                if(nextDay < 6) {
+                    nextDay = day + 1
+                } else {
+                    nextDay = 0
+                }
+            }
+        }
+        console.log(prevDay+" "+prevHour+" "+nextDay+" "+nextHour)
+        prevMu = parseInt($("#"+prevDay+"-"+prevHour+"-mu").val())
+        nextMu = parseInt($("#"+nextDay+"-"+nextHour+"-mu").val())
+        console.log("Pre-adjustment mu: "+mu+" "+minute+" "+prevMu+" "+nextMu)
+        mu = adjustForMinute(mu, minute, prevMu, nextMu)
+        console.log("Post-adjustment mu: "+mu+" "+minute+" "+prevMu+" "+nextMu)
+
+        console.log("Starting data generation with "+day+" "+hour+" "+mu+" "+sigma)
+        generatePeriodicData(day, hour, parseFloat(mu), parseFloat(sigma))
+    }
+
+    // Linear "smoothing" isn't great....but it's fast to calculate, easy to understand,
+    // and gets rid of the step functions that will make data far too easy to train against.
+    // Just be warned that linear models will fit better to this data than real life stuff.
+    function adjustForMinute(mu, minute, prevMu, nextMu) {
+        if(minute == 30) {
+            return mu;
+        } else if(minute < 30) {
+            var d = mu - prevMu;
+            var p = d * (minute / 60);
+            return mu - p;
+        } else if(minute > 30) {
+            var d = nextMu - mu;
+            var p = d * (minute / 60);
+            return mu + p;
+        }
+    }
+
+    function createDataConstant() {
+        console.log("Creating data using constant rate")
         var maxRecordsTotal = 500,
             records = [];
 
@@ -455,6 +576,48 @@ function init(){
         savedTemplates[templateIndex].template = $("#recordTemplate").val();
         localStorage.setItem("templates", JSON.stringify(savedTemplates));
         loadSavedTemplates(templateIndex);
+    }
+
+    function generatePeriodicData(day, hour, mu, sigma) {
+        var count = normal(mu, sigma)
+
+        console.log("Generating "+count);
+        debugColl.push(count)
+        console.log(debugColl)
+        var maxRecordsTotal = 500,
+            records = [];
+    
+        //clean up line breaks, and a handle older timestamp template format
+        var template = getCleanedTemplate();
+    
+        for(var n = 0; n < count; n++) {
+            var data = faker.fake(template);
+    
+            if($("#zipped").is(':checked')){
+                var pako = window.pako;
+                data = pako.gzip(data);
+            } else {
+                data = data + '\n';
+            }
+    
+            var record = {
+                "Data": data
+            };
+            if(streamType === "stream"){
+                record.PartitionKey = (Math.floor(Math.random() * (10000000000))).toString();
+            }
+            records.push(record);
+            if(records.length === maxRecordsTotal){
+                sendToKinesis(records);
+                records = [];
+            }
+        }
+    
+        if(records.length > 0){
+            sendToKinesis(records);
+        }
+    
+        $("#recordsSentMessage").text(totalRecordsSent.toString() + " records sent to Kinesis.");
     }
 }
 
