@@ -210,6 +210,10 @@ function init(){
                 alert(err);
             }
        });
+    
+       $("#lockrealtime").click(function() {
+           $('#startendtimes').toggle(!this.checked)
+       })
     });
 
     $(function () {

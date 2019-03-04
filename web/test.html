@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- jquery -->
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js" crossorigin="anonymous"></script>
+
+    <!-- font awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- popper (for bootstrap tooltips) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" crossorigin="anonymous"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+    <!-- Moment (date format library) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js" type="text/javascript"></script>
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.3.7/js/bootstrap-datetimepicker.min.js" crossorigin="anonymous"></script>
+
+    <!-- Faker -->
+    <script src="js/faker.js" type="text/javascript"></script>
+
+    <!-- Amazon Cognito -->
+    <script src="js/aws-cognito-sdk.min.js"></script>
+    <script src="js/amazon-cognito-identity.min.js"></script>
+
+    <!-- AWS SDK -->
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.6.6.min.js" type="text/javascript"></script>
+
+    <!-- pako, for gzip compression -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.6/pako.min.js" type="text/javascript"></script>
+
+    <!-- Kinesis Data Generator -->
+    <script src="js/producer.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        window.onload = init;
+    </script>
+
+    <style>
+        .tooltip-inner {
+            min-width: 250px; //the minimum width
+        }
+    </style>
+
+    <meta charset="UTF-8">
+    <title>Kinesis Data Generator</title>
+</head>
+<body>
+        <div class="container">
+                <div class="row">
+                    <div class='col-sm-6'>
+                        <div class="form-group">
+                            <div class='input-group date' id='datetimepicker1'>
+                                <input type='text' class="form-control" />
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <script type="text/javascript">
+                        $(function () {
+                            $('#datetimepicker1').datetimepicker();
+                        });
+                    </script>
+                </div>
+            </div>
+
+</body>
+</html>
