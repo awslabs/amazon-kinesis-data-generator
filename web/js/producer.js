@@ -392,7 +392,40 @@ function init(){
         if (currRate == "Constant") {
             sendDataHandle = setInterval(createDataConstant, 1000);
         } else if (currRate == "Periodic") {
-            sendDataHandle = setInterval(createDataPeriodic, 1000);
+            var lockRealTime = $("#lockrealtime").is(":checked")
+            if(lockRealTime) {
+                sendDataHandle = setInterval(createDataPeriodic, 1000);
+            } else {
+                var start = $("#starttime").data("DateTimePicker").viewDate().toDate()
+                var end = $("#endtime").data("DateTimePicker").viewDate().toDate()
+                var tick = parseInt($("#tick-wait").val())
+                var tickCount = parseInt($("#tick-count").val())
+                var generator = createPeriodicDataGenerator(start, end, tickCount)
+                sendDataHandle = setInterval(() => {
+                    var result = generator.next()
+                    if(result.done) {
+                        console.log("Finished with generator.");
+                        clearInterval(sendDataHandle);
+                        totalRecordsSent = 0;
+                        $("#recordsSentMessage").text("0 records sent to Kinesis.");
+                    }
+                }, tick)
+            }
+        }
+    }
+
+    function* createPeriodicDataGenerator(startTime, endTime, tickCount) {
+        var simTime = startTime
+        while(simTime <= endTime) {
+            var recordsToPush = []
+            for(i = 0; i<tickCount; i++) 
+            {
+                createDataPeriodicForTime(simTime, recordsToPush)
+                simTime.setSeconds(simTime.getSeconds() + 1)
+            }
+            sendToKinesis(recordsToPush)
+            $("#recordsSentMessage").text(totalRecordsSent.toString() + " records sent to Kinesis.  SimTime: "+simTime.toString());
+            yield simTime;
         }
     }
 
@@ -410,8 +443,17 @@ function init(){
         return mu + sigma * val;
     }
 
-    function createDataPeriodic() {
-        var now = new Date()
+    function createDataPeriodic()
+    {
+        createDataPeriodicForTime(new Date())
+    }
+
+    function createDataPeriodicForTime(dateTime, recordsToPush) {
+        if(typeof recordsToPush === "undefined") {
+            recordsToPush = []
+        }
+        var now = dateTime;
+
         var hour = now.getHours()
         var day = now.getDay()
         var minute = now.getMinutes()
@@ -419,7 +461,7 @@ function init(){
         var muInput = "#"+day+"-"+hour+"-mu"
         var sigInput = "#"+day+"-"+hour+"-sig"
 
-        console.log("Using "+muInput+" "+sigInput)
+        // console.log("Using "+muInput+" "+sigInput)
 
         var mu = parseInt($(muInput).val())
         var sigma = parseInt($(sigInput).val())
@@ -429,7 +471,6 @@ function init(){
             var prevDay;
             var nextHour;
             var nextDay;
-            console.log("Smoothing to...");
             if(hour > 0) {
                 prevHour = hour - 1
                 prevDay = day
@@ -453,15 +494,15 @@ function init(){
                 }
             }
         }
-        console.log(prevDay+" "+prevHour+" "+nextDay+" "+nextHour)
+        // console.log(prevDay+" "+prevHour+" "+nextDay+" "+nextHour)
         prevMu = parseInt($("#"+prevDay+"-"+prevHour+"-mu").val())
         nextMu = parseInt($("#"+nextDay+"-"+nextHour+"-mu").val())
-        console.log("Pre-adjustment mu: "+mu+" "+minute+" "+prevMu+" "+nextMu)
+        // console.log("Pre-adjustment mu: "+mu+" "+minute+" "+prevMu+" "+nextMu)
         mu = adjustForMinute(mu, minute, prevMu, nextMu)
-        console.log("Post-adjustment mu: "+mu+" "+minute+" "+prevMu+" "+nextMu)
+        // console.log("Post-adjustment mu: "+mu+" "+minute+" "+prevMu+" "+nextMu)
 
-        console.log("Starting data generation with "+day+" "+hour+" "+mu+" "+sigma)
-        generatePeriodicData(day, hour, parseFloat(mu), parseFloat(sigma))
+        // console.log("Starting data generation with "+day+" "+hour+" "+mu+" "+sigma)
+        generatePeriodicData(day, hour, parseFloat(mu), parseFloat(sigma), recordsToPush)
     }
 
     // Linear "smoothing" isn't great....but it's fast to calculate, easy to understand,
@@ -519,7 +560,27 @@ function init(){
         $("#recordsSentMessage").text(totalRecordsSent.toString() + " records sent to Kinesis.");
     }
 
-    function sendToKinesis(data){
+    function divide_array(l, n) {
+        var newArray = [];
+        for(var i = 0; i < l.length; i += n) {
+          newArray.push(l.slice(i, i+n));
+        }
+        return newArray;
+    }
+
+    function sendToKinesis(data) {
+        if (data.length > 500) {
+            toSend = divide_array(data, 500)
+            for(var i = 0; i < toSend.length; i++) {
+                sendToKinesisChunked(toSend[i])
+            }
+        } 
+        else {
+            sendToKinesisChunked(data)
+        }
+    }
+
+    function sendToKinesisChunked(data){
         if(streamType === "stream"){
             var payload = {
                 "Records": data,
@@ -582,12 +643,12 @@ function init(){
         loadSavedTemplates(templateIndex);
     }
 
-    function generatePeriodicData(day, hour, mu, sigma) {
+    function generatePeriodicData(day, hour, mu, sigma, recordsToPush) {
         var count = normal(mu, sigma)
 
-        console.log("Generating "+count);
+        // console.log("Generating "+count);
         debugColl.push(count)
-        console.log(debugColl)
+        // console.log(debugColl)
         var maxRecordsTotal = 500,
             records = [];
     
@@ -618,10 +679,8 @@ function init(){
         }
     
         if(records.length > 0){
-            sendToKinesis(records);
-        }
-    
-        $("#recordsSentMessage").text(totalRecordsSent.toString() + " records sent to Kinesis.");
+            recordsToPush.push(...records);
+        }        
     }
 }
 

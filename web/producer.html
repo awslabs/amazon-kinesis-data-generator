@@ -143,7 +143,7 @@
                                             <div class='col-sm-3'>
                                                 <div class="form-group">
                                                     <div class='input-group date' id='starttime'>
-                                                        <input type='text' class="form-control" />
+                                                        <input type='text' class="form-control" id="starttimetime"/>
                                                         <span class="input-group-addon">
                                                             <span class="glyphicon glyphicon-calendar"></span>
                                                         </span>
@@ -180,12 +180,24 @@
                                 </div>
                                 </div>
                                 <div class="container">
-                                    <label for="periodic-max-put-rate" class="col-md-2 col-form-label">Max messages per second</label>
+                                    <label for="tick-count" class="col-md-2 col-form-label">Seconds of data per tick</label>
                                     <div class="row">
                                         <div clas="col-sm-3">
                                             <div class='form-group'>
                                                 <div class="input-group">
-                                                    <input type="number" min="1" max="2000" step="1" class="form-control" id="periodic-max-put-rate" placeholder="periodic-put-rate" value="100" />
+                                                    <input type="number" min="1" max="2000" step="1" class="form-control" id="tick-count" placeholder="periodic-put-rate" value="5" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container">
+                                    <label for="tick-wait" class="col-md-2 col-form-label">Wait between ticks</label>
+                                    <div class="row">
+                                        <div clas="col-sm-3">
+                                            <div class='form-group'>
+                                                <div class="input-group">
+                                                    <input type="number" min="1" max="2000" step="1" class="form-control" id="tick-wait" placeholder="periodic-put-rate" value="100" />
                                                 </div>
                                             </div>
                                         </div>
