@@ -614,7 +614,9 @@ var _Date = function (faker) {
         return moment().utc().format(format);
   };
 
-
+  self.simTime = function() {
+    return this.simTime.format()
+  }
   
   return self;
   

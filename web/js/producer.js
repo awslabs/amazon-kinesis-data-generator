@@ -420,6 +420,7 @@ function init(){
             var recordsToPush = []
             for(i = 0; i<tickCount; i++) 
             {
+                faker.simTime = moment(simTime)
                 createDataPeriodicForTime(simTime, recordsToPush)
                 simTime.setSeconds(simTime.getSeconds() + 1)
             }
