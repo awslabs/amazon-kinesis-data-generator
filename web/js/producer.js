@@ -249,12 +249,18 @@ function init(){
         for(var k = 0; k <= 6; k++) {
             var td = $ ( "<td />")
             tr.append(td)
-            mInput = $( "<small>Mu:</small><input type='number' min='0' class='form-control' id='"+k+"-"+j+"-mu' value='100'/>" )
+            mID = k+"-"+j+"-mu"
+            mInput = $( "<small>Mu:</small><input type='number' min='0' class='form-control' id='"+mID+"' value='100'/>" )
             td.append(mInput)
-            sInput = $( "<small>Sigma:</small><input type='number' min='0' class='form-control' id='"+k+"-"+j+"-sig' value='10'/>" )
+            $("#"+mID).blur(savePeriods)
+            sID = k+"-"+j+"-sig"
+            sInput = $( "<small>Sigma:</small><input type='number' min='0' class='form-control' id='"+sID+"' value='10'/>" )
             td.append(sInput)
+            $("#"+sID).blur(savePeriods)
         }
     }
+
+    loadPeriods()
 
     $("#rate-tabs").tabs();
 
@@ -642,6 +648,36 @@ function init(){
         savedTemplates[templateIndex].template = $("#recordTemplate").val();
         localStorage.setItem("templates", JSON.stringify(savedTemplates));
         loadSavedTemplates(templateIndex);
+    }
+
+    function savePeriods() {
+        var periods = {}
+        for(var j = 0; j <= 23; j++) {
+            for(var k = 0; k <= 6; k++) {
+                var sigID = "#"+k+"-"+j+"-sig"
+                var muID = "#"+k+"-"+j+"-mu"
+                var sig = $(sigID).val()
+                var mu = $(muID).val()
+                periods[sigID] = sig
+                periods[muID] = mu
+            }
+        }
+        var toSave = JSON.stringify(periods)
+        localStorage.setItem("periods", toSave)
+    }
+
+    function loadPeriods() {
+        console.log("Loading periods")
+        var periodsStr = localStorage.getItem("periods")
+        var periods = JSON.parse(periodsStr)
+        for(var j = 0; j <= 23; j++) {
+            for(var k = 0; k <= 6; k++) {
+                var sigID = "#"+k+"-"+j+"-sig"
+                var muID = "#"+k+"-"+j+"-mu"
+                $(sigID).val(periods[sigID])
+                $(muID).val(periods[muID])
+            }
+        }
     }
 
     function generatePeriodicData(day, hour, mu, sigma, recordsToPush) {
