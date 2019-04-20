@@ -614,8 +614,8 @@ var _Date = function (faker) {
         return moment().utc().format(format);
   };
 
-  self.simTime = function() {
-    return this.simTime.format()
+  self.simTime = function(format) {
+    return faker.simTime.format(format)
   }
   
   return self;
@@ -1644,6 +1644,10 @@ var Internet = function (faker) {
       var provider = faker.random.arrayElement(faker.definitions.internet.example_email);
       return self.email(firstName, lastName, provider);
   };
+
+  self.session = function() {
+    return Math.random() * (Number.MAX_SAFE_INTEGER - 1007199254740991) + 1007199254740991;
+  }
 
   /**
    * userName
