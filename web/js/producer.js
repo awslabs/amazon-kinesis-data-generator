@@ -240,6 +240,7 @@ function init(){
         updateKinesisList();
     });
 
+    // Initialize the big inputs table to avoid tons of ugly HTML spam...
     var pi = $("#periodic-inputs")
     for(var j = 0; j <= 23; j++) {
         var tr = $( "<tr /> " )
@@ -260,6 +261,7 @@ function init(){
         }
     }
 
+    // Load previously-keyed periodic config
     loadPeriods()
 
     $("#rate-tabs").tabs();
@@ -468,8 +470,6 @@ function init(){
         var muInput = "#"+day+"-"+hour+"-mu"
         var sigInput = "#"+day+"-"+hour+"-sig"
 
-        // console.log("Using "+muInput+" "+sigInput)
-
         var mu = parseInt($(muInput).val())
         var sigma = parseInt($(sigInput).val())
 
@@ -501,14 +501,12 @@ function init(){
                 }
             }
         }
-        // console.log(prevDay+" "+prevHour+" "+nextDay+" "+nextHour)
+
         prevMu = parseInt($("#"+prevDay+"-"+prevHour+"-mu").val())
         nextMu = parseInt($("#"+nextDay+"-"+nextHour+"-mu").val())
-        // console.log("Pre-adjustment mu: "+mu+" "+minute+" "+prevMu+" "+nextMu)
-        mu = adjustForMinute(mu, minute, prevMu, nextMu)
-        // console.log("Post-adjustment mu: "+mu+" "+minute+" "+prevMu+" "+nextMu)
 
-        // console.log("Starting data generation with "+day+" "+hour+" "+mu+" "+sigma)
+        mu = adjustForMinute(mu, minute, prevMu, nextMu)
+
         generatePeriodicData(day, hour, parseFloat(mu), parseFloat(sigma), recordsToPush)
     }
 
@@ -534,7 +532,7 @@ function init(){
         var maxRecordsTotal = 500,
             records = [];
 
-        //clean up line breaks, and a handle older timestamp template format
+        //clean up line breaks, and handle older timestamp template format
         var template = getCleanedTemplate();
 
         for(var n = 0; n < rate; n++) {
@@ -683,13 +681,11 @@ function init(){
     function generatePeriodicData(day, hour, mu, sigma, recordsToPush) {
         var count = normal(mu, sigma)
 
-        // console.log("Generating "+count);
+
         debugColl.push(count)
-        // console.log(debugColl)
         var maxRecordsTotal = 500,
             records = [];
     
-        //clean up line breaks, and a handle older timestamp template format
         var template = getCleanedTemplate();
     
         for(var n = 0; n < count; n++) {

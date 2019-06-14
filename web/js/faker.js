@@ -607,7 +607,7 @@ var _Date = function (faker) {
   };
 
   self.now = function(format) {
-      return moment().format();
+      return moment().format(format);
   };
 
   self.utc = function(format) {
