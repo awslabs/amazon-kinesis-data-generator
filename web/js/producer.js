@@ -631,7 +631,7 @@ function init(){
             var templates = [
                 {"name": "Template 1", "template": ""},
                 {"name": "Template 2", "template": ""},
-                {"name": "Template 4", "template": ""},
+                {"name": "Template 3", "template": ""},
                 {"name": "Template 4", "template": ""},
                 {"name": "Template 5", "template": ""}
             ];
