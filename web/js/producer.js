@@ -454,7 +454,10 @@ function init(){
 
     function createDataPeriodic()
     {
-        createDataPeriodicForTime(new Date())
+        recordsToPush = []
+        createDataPeriodicForTime(new Date(), recordsToPush)
+        sendToKinesis(recordsToPush)
+        $("#recordsSentMessage").text(totalRecordsSent.toString() + " records sent to Kinesis.");
     }
 
     function createDataPeriodicForTime(dateTime, recordsToPush) {
@@ -500,31 +503,25 @@ function init(){
                     nextDay = 0
                 }
             }
+
+            nextMu = parseInt($("#"+nextDay+"-"+nextHour+"-mu").val())
+            nextSigma = parseInt($("#"+nextDay+"-"+nextHour+"-sig").val())
+
+            mu = adjustForMinute(mu, minute, nextMu)
+            sigma = adjustForMinute(sigma, minute, nextSigma)
         }
-
-        prevMu = parseInt($("#"+prevDay+"-"+prevHour+"-mu").val())
-        nextMu = parseInt($("#"+nextDay+"-"+nextHour+"-mu").val())
-
-        mu = adjustForMinute(mu, minute, prevMu, nextMu)
 
         generatePeriodicData(day, hour, parseFloat(mu), parseFloat(sigma), recordsToPush)
     }
 
     // Linear "smoothing" isn't great....but it's fast to calculate, easy to understand,
     // and gets rid of the step functions that will make data far too easy to train against.
-    // Just be warned that linear models will fit better to this data than real life stuff.
-    function adjustForMinute(mu, minute, prevMu, nextMu) {
-        if(minute == 30) {
-            return mu;
-        } else if(minute < 30) {
-            var d = mu - prevMu;
-            var p = d * (minute / 60);
-            return mu - p;
-        } else if(minute > 30) {
-            var d = nextMu - mu;
-            var p = d * (minute / 60);
-            return mu + p;
-        }
+    function adjustForMinute(base, minute, next) {
+        interval = next - base
+        portionOfHourPast = minute / 60
+        offset = interval * portionOfHourPast
+        smoothed = base + offset
+        return smoothed
     }
 
     function createDataConstant() {

@@ -105,7 +105,6 @@
 
 
     <div class="container" style="padding-top: 100px">
-
         <div id="kinesisInfo" class="hidden">
             <form>
 
@@ -134,6 +133,7 @@
                             <div id="constant-rate-tab" class="tab-content" style="padding-top: 20px">
                                 <input type="number" min="1" max="2000" step="1" class="form-control" id="putRate" placeholder="Kinesis Stream Name" value="100" />
                             </div>
+                            <!-- Periodic rate tab -->
                             <div id="periodic-rate-tab" class="container-fluid" style="padding-top: 20px">
                                 <div class="form-group row">
                                     <label for="smoothing" class="col-md-2 col-form-label">Intra-hour smoothing</label>
@@ -147,6 +147,7 @@
                                         <input type="checkbox" class="form-check-input" id="lockrealtime" checked/>
                                     </div>
                                 </div>
+                                <!-- Non-real-time start and end times selectors -->
                                 <div id="startendtimes" style="display:none">
                                     <div class="container" id="startTimeDiv" class="form-group row">
                                             <label for="starttime" class="col-md-2 col-form-label">Start Time</label>
@@ -213,6 +214,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!-- Javascript will init this to avoid lots of repetitive/spammy HTML -->
                                 <div id="rateParmTable">
                                     <table class=table>
                                         <thead>
