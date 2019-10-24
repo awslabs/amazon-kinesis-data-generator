@@ -16,7 +16,8 @@ permissions and limitations under the License.
 var clientIdParamName = "cid",
     userPoolIdParamName = "upid",
     identityPoolIdParamName = "ipid",
-    cognitoRegionParamName = "r";
+    cognitoRegionParamName = "r",
+    debugColl = [];
 
 function init(){
 
@@ -52,7 +53,7 @@ function init(){
         }
 
         $("#errorMessage").addClass("hidden");
-        sendDataHandle = setInterval(createData, 1000);
+        createData()
     });
 
     $("#btnCancelSendData").click( function() {
@@ -209,6 +210,10 @@ function init(){
                 alert(err);
             }
        });
+    
+       $("#lockrealtime").click(function() {
+           $('#startendtimes').toggle(!this.checked)
+       })
     });
 
     $(function () {
@@ -234,6 +239,37 @@ function init(){
     $("#region").change(function() {
         updateKinesisList();
     });
+
+    // Initialize the big inputs table to avoid tons of ugly HTML spam...
+    var pi = $("#periodic-inputs")
+    for(var j = 0; j <= 23; j++) {
+        var tr = $( "<tr /> " )
+        pi.append(tr)
+        var th = $( "<th scope='row'>"+j+"</th>" )
+        tr.append(th)
+        for(var k = 0; k <= 6; k++) {
+            var td = $ ( "<td />")
+            tr.append(td)
+            mID = k+"-"+j+"-mu"
+            mInput = $( "<small>Mu:</small><input type='number' min='0' class='form-control' id='"+mID+"' value='100'/>" )
+            td.append(mInput)
+            $("#"+mID).blur(savePeriods)
+            sID = k+"-"+j+"-sig"
+            sInput = $( "<small>Sigma:</small><input type='number' min='0' class='form-control' id='"+sID+"' value='10'/>" )
+            td.append(sInput)
+            $("#"+sID).blur(savePeriods)
+        }
+    }
+
+    // Load previously-keyed periodic config
+    loadPeriods()
+
+    $("#rate-tabs").tabs();
+
+    $(".rate-tab").on("click", function(){
+        $(".nav").find(".active").removeClass("active");
+        $(this).addClass("active");
+     });
 
     //Insert 4 spaces in textarea when tab is typed within the Record Template
     $(document).delegate('#recordTemplate', 'keydown', function(e) {
@@ -358,10 +394,142 @@ function init(){
     }
 
     function createData() {
+        var currRate = $("ul#rate-tabs li.active").text()
+        console.log("Create data index "+currRate)
+
+        if (currRate == "Constant") {
+            sendDataHandle = setInterval(createDataConstant, 1000);
+        } else if (currRate == "Periodic") {
+            var lockRealTime = $("#lockrealtime").is(":checked")
+            if(lockRealTime) {
+                sendDataHandle = setInterval(createDataPeriodic, 1000);
+            } else {
+                var start = $("#starttime").data("DateTimePicker").viewDate().toDate()
+                var end = $("#endtime").data("DateTimePicker").viewDate().toDate()
+                var tick = parseInt($("#tick-wait").val())
+                var tickCount = parseInt($("#tick-count").val())
+                var generator = createPeriodicDataGenerator(start, end, tickCount)
+                sendDataHandle = setInterval(() => {
+                    var result = generator.next()
+                    if(result.done) {
+                        console.log("Finished with generator.");
+                        clearInterval(sendDataHandle);
+                        totalRecordsSent = 0;
+                        $("#recordsSentMessage").text("0 records sent to Kinesis.");
+                    }
+                }, tick)
+            }
+        }
+    }
+
+    function* createPeriodicDataGenerator(startTime, endTime, tickCount) {
+        var simTime = startTime
+        while(simTime <= endTime) {
+            var recordsToPush = []
+            for(i = 0; i<tickCount; i++) 
+            {
+                faker.simTime = moment(simTime)
+                createDataPeriodicForTime(simTime, recordsToPush)
+                simTime.setSeconds(simTime.getSeconds() + 1)
+            }
+            sendToKinesis(recordsToPush)
+            $("#recordsSentMessage").text(totalRecordsSent.toString() + " records sent to Kinesis.  SimTime: "+simTime.toString());
+            yield simTime;
+        }
+    }
+
+    function normal(mu, sigma) {
+        do {
+            var s1 = 2.0 * Math.random() - 1.0;
+            var s2 = 2.0 * Math.random() - 1.0;
+            var r2 = (s1 * s1) + (s2 * s2);
+        } 
+        while (r2 >= 1.0 || r2 == 0.0)
+
+        var f = Math.sqrt( -2.0 * Math.log(r2) / r2);
+        var val = f * s2;
+
+        return mu + sigma * val;
+    }
+
+    function createDataPeriodic()
+    {
+        recordsToPush = []
+        createDataPeriodicForTime(new Date(), recordsToPush)
+        sendToKinesis(recordsToPush)
+        $("#recordsSentMessage").text(totalRecordsSent.toString() + " records sent to Kinesis.");
+    }
+
+    function createDataPeriodicForTime(dateTime, recordsToPush) {
+        if(typeof recordsToPush === "undefined") {
+            recordsToPush = []
+        }
+        var now = dateTime;
+
+        var hour = now.getHours()
+        var day = now.getDay()
+        var minute = now.getMinutes()
+    
+        var muInput = "#"+day+"-"+hour+"-mu"
+        var sigInput = "#"+day+"-"+hour+"-sig"
+
+        var mu = parseInt($(muInput).val())
+        var sigma = parseInt($(sigInput).val())
+
+        if($("#smoothing").is(':checked')) {
+            var prevHour;
+            var prevDay;
+            var nextHour;
+            var nextDay;
+            if(hour > 0) {
+                prevHour = hour - 1
+                prevDay = day
+            } else {
+                prevHour = 23
+                if(day > 0) {
+                    prevDay = day - 1
+                } else {
+                    prevDay = 6
+                }
+            }
+            if(hour < 22) {
+                nextHour = hour + 1;
+                nextDay = day;
+            } else {
+                nextHour = 0;
+                if(nextDay < 6) {
+                    nextDay = day + 1
+                } else {
+                    nextDay = 0
+                }
+            }
+
+            nextMu = parseInt($("#"+nextDay+"-"+nextHour+"-mu").val())
+            nextSigma = parseInt($("#"+nextDay+"-"+nextHour+"-sig").val())
+
+            mu = adjustForMinute(mu, minute, nextMu)
+            sigma = adjustForMinute(sigma, minute, nextSigma)
+        }
+
+        generatePeriodicData(day, hour, parseFloat(mu), parseFloat(sigma), recordsToPush)
+    }
+
+    // Linear "smoothing" isn't great....but it's fast to calculate, easy to understand,
+    // and gets rid of the step functions that will make data far too easy to train against.
+    function adjustForMinute(base, minute, next) {
+        interval = next - base
+        portionOfHourPast = minute / 60
+        offset = interval * portionOfHourPast
+        smoothed = base + offset
+        return smoothed
+    }
+
+    function createDataConstant() {
+        console.log("Creating data using constant rate")
         var maxRecordsTotal = 500,
             records = [];
 
-        //clean up line breaks, and a handle older timestamp template format
+        //clean up line breaks, and handle older timestamp template format
         var template = getCleanedTemplate();
 
         for(var n = 0; n < rate; n++) {
@@ -394,7 +562,27 @@ function init(){
         $("#recordsSentMessage").text(totalRecordsSent.toString() + " records sent to Kinesis.");
     }
 
-    function sendToKinesis(data){
+    function divide_array(l, n) {
+        var newArray = [];
+        for(var i = 0; i < l.length; i += n) {
+          newArray.push(l.slice(i, i+n));
+        }
+        return newArray;
+    }
+
+    function sendToKinesis(data) {
+        if (data.length > 500) {
+            toSend = divide_array(data, 500)
+            for(var i = 0; i < toSend.length; i++) {
+                sendToKinesisChunked(toSend[i])
+            }
+        } 
+        else {
+            sendToKinesisChunked(data)
+        }
+    }
+
+    function sendToKinesisChunked(data){
         if(streamType === "stream"){
             var payload = {
                 "Records": data,
@@ -455,6 +643,74 @@ function init(){
         savedTemplates[templateIndex].template = $("#recordTemplate").val();
         localStorage.setItem("templates", JSON.stringify(savedTemplates));
         loadSavedTemplates(templateIndex);
+    }
+
+    function savePeriods() {
+        var periods = {}
+        for(var j = 0; j <= 23; j++) {
+            for(var k = 0; k <= 6; k++) {
+                var sigID = "#"+k+"-"+j+"-sig"
+                var muID = "#"+k+"-"+j+"-mu"
+                var sig = $(sigID).val()
+                var mu = $(muID).val()
+                periods[sigID] = sig
+                periods[muID] = mu
+            }
+        }
+        var toSave = JSON.stringify(periods)
+        localStorage.setItem("periods", toSave)
+    }
+
+    function loadPeriods() {
+        console.log("Loading periods")
+        var periodsStr = localStorage.getItem("periods")
+        var periods = JSON.parse(periodsStr)
+        for(var j = 0; j <= 23; j++) {
+            for(var k = 0; k <= 6; k++) {
+                var sigID = "#"+k+"-"+j+"-sig"
+                var muID = "#"+k+"-"+j+"-mu"
+                $(sigID).val(periods[sigID])
+                $(muID).val(periods[muID])
+            }
+        }
+    }
+
+    function generatePeriodicData(day, hour, mu, sigma, recordsToPush) {
+        var count = normal(mu, sigma)
+
+
+        debugColl.push(count)
+        var maxRecordsTotal = 500,
+            records = [];
+    
+        var template = getCleanedTemplate();
+    
+        for(var n = 0; n < count; n++) {
+            var data = faker.fake(template);
+    
+            if($("#zipped").is(':checked')){
+                var pako = window.pako;
+                data = pako.gzip(data);
+            } else {
+                data = data + '\n';
+            }
+    
+            var record = {
+                "Data": data
+            };
+            if(streamType === "stream"){
+                record.PartitionKey = (Math.floor(Math.random() * (10000000000))).toString();
+            }
+            records.push(record);
+            if(records.length === maxRecordsTotal){
+                sendToKinesis(records);
+                records = [];
+            }
+        }
+    
+        if(records.length > 0){
+            recordsToPush.push(...records);
+        }        
     }
 }
 
