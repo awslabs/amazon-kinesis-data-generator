@@ -663,8 +663,7 @@ function init(){
 
     function loadPeriods() {
         console.log("Loading periods")
-        var periodsStr = localStorage.getItem("periods")
-        var periods = JSON.parse(periodsStr)
+        var periods = JSON.parse(localStorage.getItem("periods"))
         for(var j = 0; j <= 23; j++) {
             for(var k = 0; k <= 6; k++) {
                 var sigID = "#"+k+"-"+j+"-sig"
