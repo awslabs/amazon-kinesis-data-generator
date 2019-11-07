@@ -664,12 +664,14 @@ function init(){
     function loadPeriods() {
         console.log("Loading periods")
         var periods = JSON.parse(localStorage.getItem("periods"))
-        for(var j = 0; j <= 23; j++) {
-            for(var k = 0; k <= 6; k++) {
-                var sigID = "#"+k+"-"+j+"-sig"
-                var muID = "#"+k+"-"+j+"-mu"
-                $(sigID).val(periods[sigID])
-                $(muID).val(periods[muID])
+        if(periods) {
+            for(var j = 0; j <= 23; j++) {
+                for(var k = 0; k <= 6; k++) {
+                    var sigID = "#"+k+"-"+j+"-sig"
+                    var muID = "#"+k+"-"+j+"-mu"
+                    $(sigID).val(periods[sigID])
+                    $(muID).val(periods[muID])
+                }
             }
         }
     }
