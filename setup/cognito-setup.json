@@ -46,7 +46,7 @@
         "FunctionName": "KinesisDataGeneratorCognitoSetup",
         "Handler": "createCognitoPool.createPoolAndUser",
         "Role": { "Fn::GetAtt" : ["LambdaExecutionRole", "Arn"] },
-        "Runtime": "nodejs8.10",
+        "Runtime": "nodejs12.x",
         "Timeout": 60
       }
     },
