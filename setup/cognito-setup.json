@@ -39,7 +39,7 @@
       "Type" : "AWS::Lambda::Function",
       "Properties" : {
         "Code": {
-          "S3Bucket" : "kinesis-helpers",
+          "S3Bucket" : {"Fn::Join": ["", [ "aws-kdg-tools-", {"Ref": "AWS::Region"}]]},
           "S3Key": "datagen-cognito-setup.zip"
         },
         "Description": "Creates a Cognito User Pool, Identity Pool, and a User.  Returns IDs to be used in the Kinesis Data Generator.",
