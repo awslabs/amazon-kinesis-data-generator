@@ -44,6 +44,11 @@
             <p class="lead">The Amazon Kinesis Data Generator (KDG) makes it easy to send data to Kinesis Streams or Kinesis Firehose.  Learn how to use the tool and create templates for your records.</p>
 
             <h2 id="configAccount" class="page-header">Configure Your AWS Account</h2>
+		<p><b>NOTE:</b> Setting up the Kinesis Data Generator (KDG) in an AWS account will create a set of Cognito credentials.
+		   Users who can authenticate with those credentials will be able to publish to all Kinesis Data Streams and Kinesis Data Firehoses in the
+		   account.  After executing the setup below, you may change the IAM roles that are created to restrict permissions to publish to 
+		   specific streams or firehoses.
+		</p>
             <h3 id="cognitoUser" >Create an Amazon Cognito User</h3>
 
             <p>Before you can send data to Kinesis, you must first create an <a href="https://aws.amazon.com/cognito/" target="_blank">Amazon Cognito</a>
