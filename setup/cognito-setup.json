@@ -65,8 +65,15 @@
             "Statement": [
               {
                 "Effect": "Allow",
-                "Action": ["logs:*"],
-                "Resource": "arn:aws:logs:*:*:*" },
+                "Action": [
+                  "logs:CreateLogGroup",
+                  "logs:CreateLogStream",
+                  "logs:PutLogEvents"
+                ],
+                "Resource": [ 
+                  "arn:aws:logs:*:*:log-group:/aws/lambda/KinesisDataGeneratorCognitoSetup*"
+                ]
+              },
               {
                 "Effect": "Allow",
                 "Action": [
@@ -82,7 +89,8 @@
                 "Effect": "Allow",
                 "Action": [
                   "cognito-idp:CreateUserPool",
-                  "cognito-identity:*"
+                  "cognito-identity:CreateIdentityPool",
+                  "cognito-identity:SetIdentityPoolRoles"
                 ],
                 "Resource": "*" },
               {
@@ -157,9 +165,6 @@
               },
               {
                 "Action": [
-                  "mobileanalytics:PutEvents",
-                  "cognito-sync:*",
-                  "cognito-identity:*",
                   "ec2:DescribeRegions",
                   "firehose:ListDeliveryStreams",
                   "kinesis:ListStreams"
@@ -188,10 +193,9 @@
             "Version": "2012-10-17",
             "Statement": [
               {
-                "Effect": "Allow",
+                "Effect": "Deny",
                 "Action": [
-                  "mobileanalytics:PutEvents",
-                  "cognito-sync:*"
+                  "*"
                 ],
                 "Resource": [
                   "*"
