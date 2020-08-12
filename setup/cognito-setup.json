@@ -165,9 +165,6 @@
               },
               {
                 "Action": [
-                  "mobileanalytics:PutEvents",
-                  "cognito-sync:*",
-                  "cognito-identity:*",
                   "ec2:DescribeRegions",
                   "firehose:ListDeliveryStreams",
                   "kinesis:ListStreams"
