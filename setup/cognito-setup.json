@@ -70,8 +70,8 @@
                   "logs:CreateLogStream",
                   "logs:PutLogEvents"
                 ],
-                "Resource": [
-                  "arn:aws:logs:*:*:log-group:/aws/lambda/KinesisDataGeneratorCognitoSetup*" }
+                "Resource": [ 
+                  "arn:aws:logs:*:*:log-group:/aws/lambda/KinesisDataGeneratorCognitoSetup*"
                 ]
               },
               {
