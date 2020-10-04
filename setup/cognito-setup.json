@@ -44,7 +44,7 @@
             "default": "Advanced settings"
           },
           "Parameters": [
-            "PermissionBoundaryArn",
+            "PermissionsBoundaryArn",
             "KinesisDataGeneratorProducerEndpointUrl"
           ]
         }
