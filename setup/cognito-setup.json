@@ -2,7 +2,6 @@
   "AWSTemplateFormatVersion" : "2010-09-09",
   "Description" : "This template creates an Amazon Cognito User Pool and Identity Pool, with a single user.  It assigns a role to authenticated users in the identity pool to enable the users to use the Kinesis Data Generator tool.",
   "Parameters" : {
-
     "Username": {
       "Description": "The username of the user you want to create in Amazon Cognito.",
       "Type": "String",
@@ -16,6 +15,16 @@
       "NoEcho": true,
       "AllowedPattern": "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$",
       "ConstraintDescription": " must be at least 6 alpha-numeric characters, and contain at least one number"
+    },
+    "PermissionsBoundaryArn": {
+      "Description": "ARN for the Permissions Boundary Policy",
+      "Type": "String",
+      "Default": ""
+    },
+    "KinesisDataGeneratorProducerEndpointUrl": {
+      "Description": "The URL for your Kinesis Data Generator",
+      "Type": "String",
+      "Default": "https://awslabs.github.io/amazon-kinesis-data-generator/web/producer.html"
     }
   },
   "Metadata": {
@@ -29,12 +38,34 @@
             "Username",
             "Password"
           ]
+        },
+        {
+          "Label": {
+            "default": "Advanced settings"
+          },
+          "Parameters": [
+            "PermissionsBoundaryArn",
+            "KinesisDataGeneratorProducerEndpointUrl"
+          ]
+        }
+      ]
+    }
+  },
+  "Conditions" : {
+    "SetPermissionsBoundary": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "PermissionsBoundaryArn"
+            },
+            ""
+          ]
         }
       ]
     }
   },
   "Resources" : {
-
     "DataGenCognitoSetupLambdaFunc" : {
       "Type" : "AWS::Lambda::Function",
       "Properties" : {
@@ -57,6 +88,9 @@
           "Version": "2012-10-17",
           "Statement": [{ "Effect": "Allow", "Principal": {"Service": ["lambda.amazonaws.com"]}, "Action": ["sts:AssumeRole"] }]
         },
+        "PermissionsBoundary": {
+          "Fn::If": [ "SetPermissionsBoundary", { "Ref": "PermissionsBoundaryArn" }, { "Ref": "AWS::NoValue"} ]
+        },
         "Path": "/",
         "Policies": [{
           "PolicyName": "root",
@@ -70,7 +104,7 @@
                   "logs:CreateLogStream",
                   "logs:PutLogEvents"
                 ],
-                "Resource": [ 
+                "Resource": [
                   "arn:aws:logs:*:*:log-group:/aws/lambda/KinesisDataGeneratorCognitoSetup*"
                 ]
               },
@@ -135,6 +169,9 @@
           "Version": "2012-10-17",
           "Statement": [{ "Effect": "Allow", "Principal": {"Federated": ["cognito-identity.amazonaws.com"]}, "Action": ["sts:AssumeRoleWithWebIdentity"] }]
         },
+        "PermissionsBoundary": {
+          "Fn::If": [ "SetPermissionsBoundary", { "Ref": "PermissionsBoundaryArn" }, { "Ref": "AWS::NoValue"} ]
+        },
         "Path": "/",
         "Policies": [{
           "PolicyName": "root",
@@ -186,6 +223,9 @@
           "Version": "2012-10-17",
           "Statement": [{ "Effect": "Allow", "Principal": {"Federated": ["cognito-identity.amazonaws.com"]}, "Action": ["sts:AssumeRoleWithWebIdentity"] }]
         },
+        "PermissionsBoundary": {
+          "Fn::If": [ "SetPermissionsBoundary", { "Ref": "PermissionsBoundaryArn" }, { "Ref": "AWS::NoValue"} ]
+        },
         "Path": "/",
         "Policies": [{
           "PolicyName": "root",
@@ -211,11 +251,8 @@
     "KinesisDataGeneratorUrl": {
       "Description": "The URL for your Kinesis Data Generator.",
       "Value": {
-        "Fn::Join": ["", ["https://awslabs.github.io/amazon-kinesis-data-generator/web/producer.html?", { "Fn::GetAtt": [ "SetupCognitoCustom", "Querystring" ] }]]
+        "Fn::Join": ["", [{"Ref": "KinesisDataGeneratorProducerEndpointUrl"}, "?", { "Fn::GetAtt": [ "SetupCognitoCustom", "Querystring" ] }]]
       }
     }
   }
-
-
-
 }
