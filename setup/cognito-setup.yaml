@@ -101,9 +101,9 @@ Resources:
 
           def stage_resources(event, context):
             
-              if True:  # Testing hook to be able to stage out of band ZIP files
-                time.sleep(50)  # Watch timeout setting + Initialization
-                return
+              #if True:  # Testing hook to be able to stage out of band ZIP files
+              #  time.sleep(50)  # Watch timeout setting + Initialization
+              #  return
             
               http = urllib3.PoolManager()
               rsc_props = event['ResourceProperties']
@@ -170,7 +170,7 @@ Resources:
       FunctionName: KinesisDataGeneratorCognitoSetup
       Handler: createCognitoPool.createPoolAndUser
       Role: !GetAtt SetupLambdaExecutionRole.Arn
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Timeout: 120
 
   SetupLambdaExecutionRole:
