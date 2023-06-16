@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        crossorigin="anonymous">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" crossorigin="anonymous"></script>
     <!-- font awesome -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -11,146 +13,198 @@
     <meta charset="UTF-8">
     <title>Kinesis Data Generator</title>
 </head>
+
 <body>
 
-<nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-        <div class="navbar-header">
-            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="producer.html">Amazon Kinesis Data Generator</a>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="producer.html">Amazon Kinesis Data Generator</a>
+            </div>
+
+            <div class="navbar-collapse collapse navbar-right" id="navbar-main">
+                <ul class="nav navbar-nav">
+                    <li><a target="_blank" href="help.html"><i class="fa fa-question-circle"></i> Help</a>
+                    </li>
+                </ul>
+            </div>
+
         </div>
-
-        <div class="navbar-collapse collapse navbar-right" id="navbar-main">
-            <ul class="nav navbar-nav">
-                <li><a target="_blank" href="help.html"><i class="fa fa-question-circle" ></i> Help</a>
-                </li>
-            </ul>
-        </div>
-
-    </div>
-</nav>
+    </nav>
 
 
-<div class="container" style="padding-top: 50px">
+    <div class="container" style="padding-top: 50px">
 
-    <div class="row">
+        <div class="row">
 
-        <div class="col-md-9">
-            <h2 class="page-header" id="overview">Overview</h2>
-            <p class="lead">The Amazon Kinesis Data Generator (KDG) makes it easy to send data to Kinesis Streams or Kinesis Firehose.  Learn how to use the tool and create templates for your records.</p>
+            <div class="col-md-9">
+                <h2 class="page-header" id="overview">Overview</h2>
+                <p class="lead">The Amazon Kinesis Data Generator (KDG) makes it easy to send data to Kinesis Streams or
+                    Kinesis Firehose. Learn how to use the tool and create templates for your records.</p>
 
-            <h2 id="configAccount" class="page-header">Configure Your AWS Account</h2>
-		<p><b>NOTE:</b> Setting up the Kinesis Data Generator (KDG) in an AWS account will create a set of Cognito credentials.
-		   Users who can authenticate with those credentials will be able to publish to all Kinesis Data Streams and Kinesis Data Firehoses in the
-		   account.  After executing the setup below, you may change the IAM roles that are created to restrict permissions to publish to 
-		   specific streams or firehoses.
-		</p>
-            <h3 id="cognitoUser" >Create an Amazon Cognito User</h3>
+                <h2 id="configAccount" class="page-header">Configure Your AWS Account</h2>
+                <p><b>NOTE:</b> Setting up the Kinesis Data Generator (KDG) in an AWS account will create a set of
+                    Cognito credentials.
+                    Users who can authenticate with those credentials will be able to publish to all Kinesis Data
+                    Streams and Kinesis Data Firehoses in the
+                    account. After executing the setup below, you may change the IAM roles that are created to restrict
+                    permissions to publish to
+                    specific streams or firehoses.
+                </p>
+                <h3 id="cognitoUser">Create an Amazon Cognito User</h3>
 
-            <p>Before you can send data to Kinesis, you must first create an <a href="https://aws.amazon.com/cognito/" target="_blank">Amazon Cognito</a>
-                user in your AWS account with permissions to access Amazon Kinesis.  To simplify this process,
-                an <a href="https://aws.amazon.com/lambda/" target="_blank">Amazon Lambda</a> function and
-                an <a href="https://aws.amazon.com/cloudformation/" target="_blank">Amazon CloudFormation</a> template
-                are provided to create the user and assign just enough permissions to use the KDG.</p>
-            <p>Create the CloudFormation stack by clicking the button below.  It will take you to the AWS CloudFormation console and start the stack creation wizard.  You only need to provide
-                a Username and Password for the user that you will use to log in to the KDG.  Accept the defaults for any other options presented by CloudFormation.
-            </p>
-            <br/>
-	    <p>
-		Please note that the CloudFormation Template below is currently supported in the following regions:
-		<ul>
-		<li>ap-northeast-1 (Tokyo)</li>
-		<li>ap-northeast-2 (Seoul)</li>
-		<li>ap-south-1 (Mumbai)</li>
-		<li>ap-southeast-1 (Singapore)</li>
-		<li>ap-southeast-2 (Sydney)</li>
-		<li>ca-central-1 (Canada Central)</li>
-		<li>eu-west-1 (Ireland)</li>
-		<li>eu-west-2 (London)</li>
-		<li>eu-central-1 (Frankfurt)</li>
-		<li>us-east-1 (N. Virginia)</li>
-		<li>us-east-2 (Ohio)</li>
-		<li>us-west-2 (Oregon)</li>
-		</ul>
-	    </p>
-	    <br/>
-            <p>
-                <a class="btn btn-primary" target="_blank" href="https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=Kinesis-Data-Generator-Cognito-User&templateURL=https://aws-kdg-tools.s3.us-west-2.amazonaws.com/cognito-setup.json" role="button">Create a Cognito User with CloudFormation</a>
-            </p>
-            <br/>
-            <p>
-
-                The CloudFormation template can be downloaded from <a href="https://aws-kdg-tools.s3.us-west-2.amazonaws.com/cognito-setup.json">here</a>.
-                Because Amazon Cognito is not supported by CloudFormation, much of the setup is done in a Lambda function.
-                The source code for the function can be downloaded from <a href="https://s3-us-west-2.amazonaws.com/kinesis-helpers/datagen-cognito-setup.zip">here.</a>
-            </p>
-
-            <p>
-                The CloudFormation template will create the following resources in your AWS account:
+                <p>Before you can send data to Kinesis, you must first create an <a
+                        href="https://aws.amazon.com/cognito/" target="_blank">Amazon Cognito</a>
+                    user in your AWS account with permissions to access Amazon Kinesis. To simplify this process,
+                    an <a href="https://aws.amazon.com/lambda/" target="_blank">Amazon Lambda</a> function and
+                    an <a href="https://aws.amazon.com/cloudformation/" target="_blank">Amazon CloudFormation</a>
+                    template
+                    are provided to create the user and assign just enough permissions to use the KDG.</p>
+                </p>
+                <p>
+                    Because Amazon Cognito is not supported by CloudFormation, much of the setup is done in a Lambda
+                    function.
+                    The source code for the function can be downloaded from <a
+                        href="https://github.com/awslabs/amazon-kinesis-data-generator/raw/mainline/setup/datagen-cognito-setup.zip">here.</a>
+                    <br />
+                <p>
+                <p>
+                    The CloudFormation template will create the following resources in your AWS account:
                 <ul>
                     <li>An IAM role that gives the Lambda function permission to create Cognito resources.</li>
-                    <li>An IAM role that is assigned to authenticated Cognito users.  This role has only enough permission to use the KDG.</li>
-                    <li>An IAM role that is assigned to unauthenticated Cognito users.  This role has only enough permission to create Cognito analytics events.</li>
-                    <li>A Lambda function.</li>
+                    <li>An IAM role that is assigned to authenticated Cognito users. This role has only enough
+                        permission to use the KDG.</li>
+                    <li>An IAM role that is assigned to unauthenticated Cognito users. This role has only enough
+                        permission to create Cognito analytics events.</li>
+                    <li>A Lambda function to bootstrap the Cognito Lambda install from GitHub</li>
+                    <li>A Lambda function to set up Cognito.</li>
                 </ul>
-            </p>
-            <p>
-                The Lambda function will create the following resources in your AWS account:
+                </p>
+                <p>
+                    The Cognito Lambda function will create the following resources in your AWS account:
                 <ul>
                     <li>A Cognito User Pool.</li>
                     <li>A Cognito Federated Identity Pool.</li>
-                    <li>A Cognito User, with the username and password specified by you when you created the CloudFormation stack.</li>
+                    <li>A Cognito User, with the username and password specified by you when you created the
+                        CloudFormation stack.</li>
                     <li>The necessary relationships between the roles, users and pools.</li>
                 </ul>
-            </p>
+                </p>
 
-            <br/>
+                <p>Create the CloudFormation stack by clicking the button below. It will take you to the AWS
+                    CloudFormation console and start the stack creation wizard. You only need to provide
+                    a Username and Password for the user that you will use to log in to the KDG. Accept the defaults for
+                    any other options presented by CloudFormation.
+                </p>
 
-            <h3 id="cfnOutput" >Access the KDG</h3>
-            <p>
-                After the CloudFormation stack has been successfully created, you will need to use a special URL to access the
-                KDG.  CloudFormation creates this URL as part of the stack generation, and you can find it
-                in the Outputs section of the CloudFormation stack.</p>
-            <p>
-                To find the URL, choose the CloudFormation stack, and then choose the Outputs tab as shown below.  Simply bookmark this URL in your browser for
-                easy future access to the KDG.
-            </p>
-            <br/>
-            <p>
-                <img src="img/output.jpg" width="100%"/>
-            </p>
+                <p>
+                    Please note that the CloudFormation Template below is currently supported in the following regions:
+                <ul>
+                    <li>ap-northeast-1 (Tokyo)</li>
+                    <li>ap-northeast-2 (Seoul)</li>
+                    <li>ap-south-1 (Mumbai)</li>
+                    <li>ap-southeast-1 (Singapore)</li>
+                    <li>ap-southeast-2 (Sydney)</li>
+                    <li>ca-central-1 (Canada Central)</li>
+                    <li>eu-west-1 (Ireland)</li>
+                    <li>eu-west-2 (London)</li>
+                    <li>eu-central-1 (Frankfurt)</li>
+                    <li>us-east-1 (N. Virginia)</li>
+                    <li>us-east-2 (Ohio)</li>
+                    <li>us-west-2 (Oregon)</li>
+                </ul>
 
+                <a class="btn btn-primary" target="_blank"
+                    href="https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=Kinesis-Data-Generator-Cognito-User&templateURL=https://aws-kdg-tools.s3.us-west-2.amazonaws.com/cognito-setup.yaml"
+                    role="button">Create a Cognito User with CloudFormation</a>
 
+                </p>
 
-            <h2 id="template" class="page-header">Record Template</h2>
-            <p>The KDG can generate records using random data based on a template you provide.  In the Record Template textarea, provide a template that represents a single record.
-                The KDG will create a unique record  based on the template, replacing your templated record with actual data.  The record template can be of any type:  json, csv, or unstructured.
-                Because of this, there is no validation of the data before it is sent to Kinesis.</p>
-            <p>The KDG extends <a href="https://github.com/marak/Faker.js/">faker.js</a>, an open source random data generator.  For full documentation of the items that can be "faked" by faker.js, see the <a href="https://github.com/Marak/faker.js/blob/master/Readme.md">faker.js documentation.</a> </p>
-            <h3 id="templateExamples">Example Templates</h3>
-            <p>Data elements in a teamplate that need to be replaced for each record use moustache syntax (i.e. enclosed in double curly-braces {{ replace.this }} ).  Consider the following data record, representing somebody's first name,
-                last name, age, and IP address:</p>
-            <pre>
+                <p>
+                    <br>
+                    In addition to the above regions, <b>GovCloud</b> is also supported by manually importing the
+                    CloudFormation template in the following regions:
+
+                <ul>
+                    <li>us-gov-east-1 (Ohio/OSU)</li>
+                    <li>us-gov-west-1 (Portland/PDT)</li>
+                </ul>
+                </p>
+                <p>
+                    For manually installing KDG by CloudFormation:
+                <ul>
+                    <li>
+                        download the template from <a
+                            href="https://raw.githubusercontent.com/awslabs/amazon-kinesis-data-generator/mainline/setup/cognito-setup.yaml">here</a>.
+                    </li>
+                    </li>
+                    and launch <a
+                        href="https://console.amazonaws-us-gov.com/cloudformation/home?region=us-gov-west-1#/">CloudFormation</a>
+                    to <code>Create stack</code> and <code>Upload a template</code> with the downloaded file.
+                    </li>
+                </ul>
+                </p>
+
+                <h3 id="cfnOutput">Access the KDG</h3>
+                <p>
+                    After the CloudFormation stack has been successfully created, you will need to use a special URL
+                    to
+                    access the
+                    KDG. CloudFormation creates this URL as part of the stack generation, and you can find it
+                    in the Outputs section of the CloudFormation stack.</p>
+                <p>
+                    To find the URL, choose the CloudFormation stack, and then choose the Outputs tab as shown
+                    below.
+                    Simply bookmark this URL in your browser for
+                    easy future access to the KDG.
+                </p>
+                <br />
+                <p>
+                    <img src="img/output.jpg" width="100%" />
+                </p>
+
+                <h2 id="template" class="page-header">Record Template</h2>
+
+                <p>The KDG can generate records using random data based on a template you provide. In the Record
+                    Template textarea, provide a template that represents a single record.
+                    The KDG will create a unique record based on the template, replacing your templated record with
+                    actual data. The record template can be of any type: json, csv, or unstructured.
+                    Because of this, there is no validation of the data before it is sent to Kinesis.</p>
+                <p>The KDG extends <a href="https://github.com/marak/Faker.js/">faker.js</a>, an open source random
+                    data
+                    generator. For full documentation of the items that can be "faked" by faker.js, see the <a
+                        href="https://github.com/Marak/faker.js/blob/master/Readme.md">faker.js documentation.</a>
+                </p>
+                <h3 id="templateExamples">Example Templates</h3>
+                <p>Data elements in a teamplate that need to be replaced for each record use moustache syntax (i.e.
+                    enclosed in double curly-braces {{ replace.this }} ). Consider the following data record,
+                    representing somebody's first name,
+                    last name, age, and IP address:</p>
+                <pre>
 John,Doe,42,127.0.0.1
             </pre>
-            <p>The template to generate records of this type:</p>
-            <pre>
+                <p>The template to generate records of this type:</p>
+                <pre>
 {{name.firstName}},{{name.lastName}},{{random.number(70)}},{{internet.ip}}
             </pre>
-            <p>Records can be represented in any data structure, such as JSON:</p>
-            <pre>
+                <p>Records can be represented in any data structure, such as JSON:</p>
+                <pre>
 {
     "sensorId": 40,
     "currentTemperature": 76,
     "status": "OK"
 }
             </pre>
-            <p>In this template, assume that the "status" can be only one of three items (OK, WARN, FAIL).  Also assume that we want the temperature range to be a random value between 10 and 150.  The template for this would look like:</p>
-            <pre>
+                <p>In this template, assume that the "status" can be only one of three items (OK, WARN, FAIL). Also
+                    assume that we want the temperature range to be a random value between 10 and 150. The template
+                    for
+                    this would look like:</p>
+                <pre>
 {
     "sensorId": {{random.number(50)}},
     "currentTemperature": {{random.number(
@@ -164,28 +218,44 @@ John,Doe,42,127.0.0.1
     )}}"
 }
             </pre>
-            <h3 id="additionalFunctionality">Additional Templating Functionality</h3>
-            <p>The KDG supports several other templating features, in addition to the native templating provided by faker.js.</p>
-            <h4>Current Date and Time</h4>
-            <p>You can insert the current date and time into each record by including a date.now and date.utc items in your record template.  The KDG uses the <a href="http://momentjs.com">moment.js</a> library for datetime formatting.  Details for creating an appropriate format string for your use case can be found in the <a href="http://momentjs.com/docs/#/displaying/">moment.js documentation</a>.  Several examples are shown here:</p>
-            <pre>
+                <h3 id="additionalFunctionality">Additional Templating Functionality</h3>
+                <p>The KDG supports several other templating features, in addition to the native templating provided
+                    by
+                    faker.js.</p>
+                <h4>Current Date and Time</h4>
+                <p>You can insert the current date and time into each record by including a date.now and date.utc
+                    items
+                    in your record template. The KDG uses the <a href="http://momentjs.com">moment.js</a> library
+                    for
+                    datetime formatting. Details for creating an appropriate format string for your use case can be
+                    found in the <a href="http://momentjs.com/docs/#/displaying/">moment.js documentation</a>.
+                    Several
+                    examples are shown here:</p>
+                <pre>
                 {{date.now}}                                     // 2014-09-08T08:02:17-05:00
                 {{date.now("dddd, MMMM Do YYYY, h:mm:ss a")}}    // Sunday, February 14th 2010, 3:25:50 pm
                 {{date.now("ddd, hA")}}                          // Sun, 3PM
                 {{date.now("DD/MMM/YYYY:HH:mm:ss Z")}}           // 14/Jul/2009:20:12:22 -0700
             </pre>
-            <pre>
+                <pre>
                 {{date.utc}}
                 {{date.utc("dddd, MMMM Do YYYY, h:mm:ss a")}}
                 {{date.utc("ddd, hA")}}
                 {{date.utc("DD/MMM/YYYY:HH:mm:ss Z")}}
             </pre>
 
-            <h4>Weighted Array Element</h4>
-            <p>Sometimes you don't want randomness to be completely random.  You might want to to choose elements from an array, but you want the randomness to be weighted such that over time, each element is chosen a certain number of times, relative to other elements in the array.
-            To accomplish this, use random.weightedArrayElement.  It takes a JSON object as input, with that JSON object containing two attributes:  weights, and data.  Each attribute contains a single array.  The data array contains the data
-            from which you want the function to choose, and the weights array contains items representing the percentage that each corresponding element in the data array should be chosen.</p>
-            <pre>
+                <h4>Weighted Array Element</h4>
+                <p>Sometimes you don't want randomness to be completely random. You might want to to choose elements
+                    from an array, but you want the randomness to be weighted such that over time, each element is
+                    chosen a certain number of times, relative to other elements in the array.
+                    To accomplish this, use random.weightedArrayElement. It takes a JSON object as input, with that
+                    JSON
+                    object containing two attributes: weights, and data. Each attribute contains a single array. The
+                    data array contains the data
+                    from which you want the function to choose, and the weights array contains items representing
+                    the
+                    percentage that each corresponding element in the data array should be chosen.</p>
+                <pre>
 {{random.weightedArrayElement(
   {
     "weights": [0.3,0.2,0.5],
@@ -193,25 +263,52 @@ John,Doe,42,127.0.0.1
   }
 )}}
             </pre>
-            <h2 id="template" class="page-header">Record Send Rate</h2>
-            <p>The KDG can use one of two different strategies for calculating the send rate of messages: Constant or Periodic.  Select between the two by choosing the "Constant" or "Periodic" tab.</p>
-            
-            <h3 id="templateExamples">Constant Data Rate</h3>
-            <p>In "Constant" mode, the KDG sends the same number of records each second.</p>
+                <h2 id="template" class="page-header">Record Send Rate</h2>
+                <p>The KDG can use one of two different strategies for calculating the send rate of messages:
+                    Constant
+                    or Periodic. Select between the two by choosing the "Constant" or "Periodic" tab.</p>
 
-            <h3 id="templateExamples">Periodic Data Rate</h3>
-            <p>In "Periodic" mode, the KDG sends a variable number of records each second.  The rate varies by hour-of-day and day-of-week.  This allows for simulation of periodic data.  The record send rate is pseudo-random.  The actual value is chosen along a guassian distribution centered on Mu with a standard deviation of the value provided by Sigma (you can specify a different Mu and Sigma for each hour of each day of the week).</p>
-            <p>If "Enable Linear Smoothing" is selected, Mu and Sigma will be adjusted linearly between adjacent hours, with the actual provided values for Mu and Sigma used at the top of the hour and transitioning to the next hour linearly.</p>
-            <p>If "Lock to Real Time" is selected, data will be generated every second - similar to the "Constant" mode. If "Lock to Real Time" is deselected, the KDG will prompt you for start and end datetimes and will generate data for each second between those start and endtimes in "ticks."  The number of seconds of data that is generated in each "tick" is the value in "Seconds of data per tick" and the data generation thread will yield for "Wait time between ticks" (milliseconds) between each tick (to allow other browser processes, including the Kinesis send thread, to execute).  In this "Unlocked to real time" mode, <pre>{{date.simTime}}</pre> will be evaluated in the template as the currently-simulated time (as opposed to the wall-clock time that will be returned by {{date.now}}).  This is especially useful for generating bulk datasets as quickly as your browser can (as opposed to generating them in real time).</p>
+                <h3 id="templateExamples">Constant Data Rate</h3>
+                <p>In "Constant" mode, the KDG sends the same number of records each second.</p>
+
+                <h3 id="templateExamples">Periodic Data Rate</h3>
+                <p>In "Periodic" mode, the KDG sends a variable number of records each second. The rate varies by
+                    hour-of-day and day-of-week. This allows for simulation of periodic data. The record send rate
+                    is
+                    pseudo-random. The actual value is chosen along a guassian distribution centered on Mu with a
+                    standard deviation of the value provided by Sigma (you can specify a different Mu and Sigma for
+                    each
+                    hour of each day of the week).</p>
+                <p>If "Enable Linear Smoothing" is selected, Mu and Sigma will be adjusted linearly between adjacent
+                    hours, with the actual provided values for Mu and Sigma used at the top of the hour and
+                    transitioning to the next hour linearly.</p>
+                <p>If "Lock to Real Time" is selected, data will be generated every second - similar to the
+                    "Constant"
+                    mode. If "Lock to Real Time" is deselected, the KDG will prompt you for start and end datetimes
+                    and
+                    will generate data for each second between those start and endtimes in "ticks." The number of
+                    seconds of data that is generated in each "tick" is the value in "Seconds of data per tick" and
+                    the
+                    data generation thread will yield for "Wait time between ticks" (milliseconds) between each tick
+                    (to
+                    allow other browser processes, including the Kinesis send thread, to execute). In this "Unlocked
+                    to
+                    real time" mode,
+                <pre>{{date.simTime}}</pre> will be evaluated in the template as the currently-simulated time (as
+                opposed to the wall-clock time that will be returned by {{date.now}}). This is especially useful for
+                generating bulk datasets as quickly as your browser can (as opposed to generating them in real
+                time).
+                </p>
+            </div>
         </div>
+
     </div>
 
-</div>
-
-<br/><br/>
-<!-- tracking pixel to get basic access metrics for this tool when it's accessed from static GitHub site.
+    <br /><br />
+    <!-- tracking pixel to get basic access metrics for this tool when it's accessed from static GitHub site.
 Remove this if you've cloned, downloaded, or branched this project for your own use. -->
-<img src="https://d3kyjbny8nji9p.cloudfront.net/trackpixel/i" border="0"/>
+    <img src="https://d3kyjbny8nji9p.cloudfront.net/trackpixel/i" border="0" />
 
 </body>
+
 </html>

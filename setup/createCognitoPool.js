@@ -5,7 +5,7 @@ var AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 var async = require('async');
 
 
-exports.createPoolAndUser = function(event, context) {
+exports.createPoolAndUser = function (event, context) {
 
     if (event.RequestType == "Delete") {
         sendResponse(event, context, "SUCCESS");
@@ -20,9 +20,16 @@ exports.createPoolAndUser = function(event, context) {
         authRoleArn = event.ResourceProperties.AuthRoleArn,
         unauthRoleName = event.ResourceProperties.UnauthRoleName,
         unauthRoleArn = event.ResourceProperties.UnauthRoleArn,
+        awsPartition = event.ResourceProperties.Partition,
         userPoolId = null,
         identityPoolId = null,
         clientAppId = null;
+
+    var cognitoPrincipal = 'cognito-identity'
+    if (awsPartition == 'aws-us-gov') {
+        cognitoPrincipal = 'cognito-identity-us-gov'
+    }
+    cognitoPrincipal += '.amazonaws.com'
 
     aws.config.region = region;
     var cognitoProvider = new aws.CognitoIdentityServiceProvider(),
@@ -38,7 +45,7 @@ exports.createPoolAndUser = function(event, context) {
         setIdentityPoolRoles,
         updateRoles
     ], function (err, result) {
-        if(err) {
+        if (err) {
             console.log(err);
             sendResponse(event, context, "FAILED", err);
         }
@@ -184,27 +191,47 @@ exports.createPoolAndUser = function(event, context) {
 
     function updateRoles(callback) {
 
+        var conditions = {
+            'StringEquals': {
+                aud: cognitoPrincipal + ":aud",
+            },
+            'ForAnyValue:StringLike': {
+                amr: cognitoPrincipal + ":amr"
+            }
+        };
+
+        // We need to adjust the policy keys "after" we know what the 
+        // principal is (Public Cloud vs Gov Cloud)
         var policyDoc = {
             Version: "2012-10-17",
             Statement: [
                 {
                     Effect: "Allow",
                     Principal: {
-                        "Federated": "cognito-identity.amazonaws.com"
+                        "Federated": cognitoPrincipal
                     },
                     Action: "sts:AssumeRoleWithWebIdentity",
                     Condition: {
                         StringEquals: {
-                            "cognito-identity.amazonaws.com:aud": identityPoolId
+                            aud: identityPoolId
                         },
                         "ForAnyValue:StringLike": {
-                            "cognito-identity.amazonaws.com:amr": "authenticated"
+                            amr: "authenticated"
                         }
                     }
                 }
             ]
         };
 
+        // This is because Javascript can't take variables for keys
+        Object.keys(conditions).forEach((conditionkey) => {
+            Object.keys(conditions[conditionkey]).forEach((prop) => {
+                var new_prop = conditions[conditionkey][prop]
+                var val = policyDoc['Statement'][0]['Condition'][conditionkey][prop]
+                delete policyDoc['Statement'][0]['Condition'][conditionkey][prop]
+                policyDoc['Statement'][0]['Condition'][conditionkey][new_prop] = val
+            })
+        });
 
         var params = {
             PolicyDocument: JSON.stringify(policyDoc),
@@ -264,14 +291,14 @@ exports.createPoolAndUser = function(event, context) {
 
         console.log("SENDING RESPONSE...\n");
 
-        var request = https.request(options, function(response) {
+        var request = https.request(options, function (response) {
             console.log("STATUS: " + response.statusCode);
             console.log("HEADERS: " + JSON.stringify(response.headers));
             // Tell AWS Lambda that the function execution is done
             //context.done();
         });
 
-        request.on("error", function(error) {
+        request.on("error", function (error) {
             console.log("sendResponse Error:" + error);
             // Tell AWS Lambda that the function execution is done
             //context.done();
