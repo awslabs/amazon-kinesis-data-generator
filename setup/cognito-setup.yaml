@@ -116,7 +116,7 @@ Resources:
               http = urllib3.PoolManager()
               rsc_props = event['ResourceProperties']
 
-              bucket = rsc_props['StagingS3BucketSensor1Name']
+              bucket = rsc_props['StagingS3BucketName']
               url_to_fetch = rsc_props['UrlLambdaZipToStage']
               filename_key = rsc_props['FilenameKey']
               expected_sha = rsc_props['Expected512Sha']
@@ -162,7 +162,7 @@ Resources:
     Type: "Custom::BootstrapStagingLambdaFunc"
     Properties:
       ServiceToken: !GetAtt StagingLambdaFunc.Arn
-      StagingS3BucketSensor1Name: !Ref StagingS3Bucket
+      StagingS3BucketName: !Ref StagingS3Bucket
       UrlLambdaZipToStage: "https://github.com/awslabs/amazon-kinesis-data-generator/blob/mainline/setup/datagen-cognito-setup.zip?raw=true"
       FilenameKey: "datagen-cognito-setup.zip"
       Expected512Sha: "bbe80f52ec7a246c065069f2bb0112a1a968472e6b48946ab88d73e5284787cd56acbd1d7adaa07a8120f3e1bd8d6644b96d18d7f0d7a2e60013d77b00d07eaa"
