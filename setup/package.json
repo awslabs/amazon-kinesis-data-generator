@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {},
   "dependencies": {
-    "amazon-cognito-identity-js": "^1.16.0",
-    "async": "^2.1.5",
-    "aws-sdk": "^2.18.0"
+    "amazon-cognito-identity-js": "6.3.7",
+    "async": "^3.2.5",
+    "aws-sdk": "^2.1533.0"
   }
 }

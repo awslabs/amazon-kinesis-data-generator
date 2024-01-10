@@ -1,4 +1,5 @@
 var util = require('../util');
+var populateHostPrefix = require('./helpers').populateHostPrefix;
 
 function populateMethod(req) {
   req.httpRequest.method = req.service.api.operations[req.operation].httpMethod;
@@ -23,7 +24,7 @@ function generateURI(endpointPath, operationPath, input, params) {
 
       if (member.type === 'list') {
         queryString[member.name] = paramValue.map(function(val) {
-          return util.uriEscape(String(val));
+          return util.uriEscape(member.member.toWireFormat(val).toString());
         });
       } else if (member.type === 'map') {
         util.each(paramValue, function(key, value) {
@@ -36,7 +37,7 @@ function generateURI(endpointPath, operationPath, input, params) {
           }
         });
       } else {
-        queryString[member.name] = util.uriEscape(String(paramValue));
+        queryString[member.name] = util.uriEscape(member.toWireFormat(paramValue).toString());
       }
     }
   });
@@ -78,6 +79,9 @@ function populateHeaders(req) {
       });
     } else if (member.location === 'header') {
       value = member.toWireFormat(value).toString();
+      if (member.isJsonValue) {
+        value = util.base64.encode(value);
+      }
       req.httpRequest.headers[member.name] = value;
     }
   });
@@ -87,6 +91,7 @@ function buildRequest(req) {
   populateMethod(req);
   populateURI(req);
   populateHeaders(req);
+  populateHostPrefix(req);
 }
 
 function extractError() {
@@ -119,7 +124,10 @@ function extractData(resp) {
       });
     } else if (member.location === 'header') {
       if (headers[header] !== undefined) {
-        data[name] = headers[header];
+        var value = member.isJsonValue ?
+          util.base64.decode(headers[header]) :
+          headers[header];
+        data[name] = member.toType(value);
       }
     } else if (member.location === 'statusCode') {
       data[name] = parseInt(r.statusCode, 10);
@@ -129,6 +137,9 @@ function extractData(resp) {
   resp.data = data;
 }
 
+/**
+ * @api private
+ */
 module.exports = {
   buildRequest: buildRequest,
   extractError: extractError,

@@ -19,6 +19,15 @@
           "alias": "document_client"
         }
       ]
+    },
+    {
+      "path": "lib/dynamodb/converter",
+      "imports": [
+        {
+          "name": "Converter",
+          "alias": "converter"
+        }
+      ]
     }
   ],
   "polly": [
@@ -32,6 +41,17 @@
       ]
     }
   ],
+  "rds": [
+    {
+      "path": "lib/rds/signer",
+      "imports": [
+        {
+          "name": "Signer",
+          "alias": "signer"
+        }
+      ]
+    }
+  ],
   "s3": [
     {
       "path": "lib/s3/managed_upload",
@@ -39,6 +59,15 @@
         {
           "name": "ManagedUpload",
           "alias": "managed_upload"
+        }
+      ]
+    },
+    {
+      "path": "lib/s3/presigned_post",
+      "imports": [
+        {
+          "name": "PresignedPost",
+          "alias": "presigned_post"
         }
       ]
     }
