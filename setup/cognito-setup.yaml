@@ -136,7 +136,7 @@ Resources:
               
               m = hashlib.sha512()
               m.update(resp.data)
-              
+              print(f'hexgistest is [{m.hexgistest()}]')
               if expected_sha != m.hexdigest():
                 raise RunTimeError(f'downloaded checksum does not match baseline. Expected[{expected_sha}], Got[{m.hexgistest()}]')
 
