@@ -133,8 +133,9 @@ Resources:
 
               print(f'About to fetch URL: {url_to_fetch}')
               resp = http.request('GET', url_to_fetch)
-              
+              print('Done with fetch from URL.')
               m = hashlib.sha512()
+              print('Hash complete.')
               m.update(resp.data)
               print(f'hexgistest is [{m.hexgistest()}]')
               if expected_sha != m.hexdigest():
