@@ -137,9 +137,9 @@ Resources:
               m = hashlib.sha512()
               print('Hash complete.')
               m.update(resp.data)
-              print(f'hexgistest is [{m.hexgistest()}]')
               if expected_sha != m.hexdigest():
-                raise RunTimeError(f'downloaded checksum does not match baseline. Expected[{expected_sha}], Got[{m.hexgistest()}]')
+                print(f'downloaded checksum does not match baseline. Expected[{expected_sha}], Got[{m.hexdigest()}]')
+                raise RunTimeError(f'downloaded checksum does not match baseline. Expected[{expected_sha}], Got[{m.hexdigest()}]')
 
               print(f'About to put file to S3: {bucket}/{filename_key}')
               s3 = boto3.client('s3')
