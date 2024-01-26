@@ -176,7 +176,7 @@ Resources:
       StagingS3BucketName: !Ref StagingS3Bucket
       UrlLambdaZipToStage: "https://github.com/awslabs/amazon-kinesis-data-generator/blob/mainline/setup/datagen-cognito-setup.zip?raw=true"
       FilenameKey: "datagen-cognito-setup.zip"
-      Expected512Sha: "bbe80f52ec7a246c065069f2bb0112a1a968472e6b48946ab88d73e5284787cd56acbd1d7adaa07a8120f3e1bd8d6644b96d18d7f0d7a2e60013d77b00d07eaa"
+      Expected512Sha: "779f78833de27c4523d27b0f792c7d3be7070fbe4bca76d480af2cb030049601e0081d44712c420e972c4bb9546c4167368671135ea0e62fe7d5d026eea584f6"
 
   DataGenCognitoSetupLambdaFunc:
     Type: "AWS::Lambda::Function"
