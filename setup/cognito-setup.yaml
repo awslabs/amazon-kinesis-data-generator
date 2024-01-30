@@ -14,10 +14,9 @@ Parameters:
     NoEcho: true
     AllowedPattern: "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$"
     ConstraintDescription: " must be at least 6 alpha-numeric characters, and contain at least one number"
-  PermissionsBoundaryArn:
-    Description: OPTIONAL - IAM Permissions Boundary Policy ARN to attach to new IAM Roles
-    Type: String
-    Default: ""
+  SensorNumber:
+    Description: The number identifier for the sensor.
+    Type: Number
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -28,15 +27,9 @@ Metadata:
           - Username
           - Password
       - Label:
-          default: Optional / Advanced Parameters (OK to ignore)
+          default: Sensor Configuration
         Parameters:
-          - PermissionsBoundaryArn
-
-Conditions:
-  SetPermissionsBoundary: !Not
-    - !Equals
-      - !Ref PermissionsBoundaryArn
-      - ""
+          - SensorNumber
 
 Mappings:
   PrincipalMap:
@@ -51,7 +44,7 @@ Resources:
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
     Properties:
-      Name: KinesisDataGeneratorUser
+      Name: !Sub 'Sensor_${SensorNumber}_KinesisDataGeneratorUser'
       Description: Secret for the Cognito User for the Kinesis Data Generator
       SecretString: !Sub '{ "username": "${Username}", "password": "${Password}" }'
 
@@ -67,13 +60,9 @@ Resources:
                 - lambda.amazonaws.com
             Action:
               - sts:AssumeRole
-      PermissionsBoundary: !If
-        - SetPermissionsBoundary
-        - !Ref PermissionsBoundaryArn
-        - !Ref AWS::NoValue
       Path: /
       Policies:
-        - PolicyName: BootStrapLambdaSetup
+        - PolicyName: !Sub 'Sensor_${SensorNumber}_BootStrapLambdaSetup'
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -93,6 +82,7 @@ Resources:
   StagingS3Bucket:
     Type: "AWS::S3::Bucket"
     Properties:
+      BucketName: !Sub 'sensor-${SensorNumber}-data-storage'
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -102,7 +92,7 @@ Resources:
     Type: "AWS::Lambda::Function"
     DependsOn: StagingS3Bucket
     Properties:
-      FunctionName: bootstrapStagingLambdaSetup
+      FunctionName: !Sub 'Sensor_${SensorNumber}_bootstrapStagingLambdaSetup'
       Description: Staging Lambda to pull the zip dependency from GitHub to build the "real" setup function
       Role: !GetAtt StagingLambdaRole.Arn
       Runtime: python3.9
@@ -186,7 +176,7 @@ Resources:
         S3Bucket: !Ref StagingS3Bucket
         S3Key: datagen-cognito-setup.zip
       Description: "Creates a Cognito User Pool, Identity Pool, and a User.  Returns IDs to be used in the Kinesis Data Generator."
-      FunctionName: KinesisDataGeneratorCognitoSetup
+      FunctionName: !Sub 'Sensor_${SensorNumber}_KinesisDataGeneratorCognitoSetup'
       Handler: createCognitoPool.createPoolAndUser
       Role: !GetAtt SetupLambdaExecutionRole.Arn
       Runtime: nodejs18.x
@@ -204,10 +194,6 @@ Resources:
                 - lambda.amazonaws.com
             Action:
               - "sts:AssumeRole"
-      PermissionsBoundary: !If
-        - SetPermissionsBoundary
-        - !Ref PermissionsBoundaryArn
-        - !Ref AWS::NoValue
       Path: /
       Policies:
         - PolicyName: SetupCognitoLambda
@@ -272,10 +258,6 @@ Resources:
                 - !FindInMap [PrincipalMap, !Ref AWS::Partition, cognito]
             Action:
               - "sts:AssumeRoleWithWebIdentity"
-      PermissionsBoundary: !If
-        - SetPermissionsBoundary
-        - !Ref PermissionsBoundaryArn
-        - !Ref AWS::NoValue
       Path: /
       Policies:
         - PolicyName: AllowStreaming
@@ -316,10 +298,6 @@ Resources:
                 - !FindInMap [PrincipalMap, !Ref AWS::Partition, cognito]
             Action:
               - "sts:AssumeRoleWithWebIdentity"
-      PermissionsBoundary: !If
-        - SetPermissionsBoundary
-        - !Ref PermissionsBoundaryArn
-        - !Ref AWS::NoValue
       Path: /
       Policies:
         - PolicyName: DenyAll
