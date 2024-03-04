@@ -272,6 +272,9 @@ Resources:
                 - !FindInMap [PrincipalMap, !Ref AWS::Partition, cognito]
             Action:
               - "sts:AssumeRoleWithWebIdentity"
+            Condition:
+              StringEquals:
+                cognito-identity.amazonaws.com:aud: !Ref "AWS::StackId"
       PermissionsBoundary: !If
         - SetPermissionsBoundary
         - !Ref PermissionsBoundaryArn
@@ -316,6 +319,9 @@ Resources:
                 - !FindInMap [PrincipalMap, !Ref AWS::Partition, cognito]
             Action:
               - "sts:AssumeRoleWithWebIdentity"
+            Condition:
+              StringEquals:
+                cognito-identity.amazonaws.com:aud: !Ref "AWS::StackId"
       PermissionsBoundary: !If
         - SetPermissionsBoundary
         - !Ref PermissionsBoundaryArn
