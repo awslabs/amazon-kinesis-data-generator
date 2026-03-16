@@ -138,8 +138,15 @@ Resources:
               print('Hash complete.')
               m.update(resp.data)
               if expected_sha != m.hexdigest():
-                print(f'downloaded checksum does not match baseline. Expected[{expected_sha}], Got[{m.hexdigest()}]')
-                raise RunTimeError(f'downloaded checksum does not match baseline. Expected[{expected_sha}], Got[{m.hexdigest()}]')
+                actual_sha = m.hexdigest()
+                print(f'downloaded checksum does not match baseline. Expected[{expected_sha}], Got[{actual_sha}]')
+                error_msg = (
+                    f'Checksum validation failed due to GitHub CDN caching issues. '
+                    f'This is a temporary problem. Please try deploying the CloudFormation stack again. '
+                    f'Expected SHA512: {expected_sha}, Got: {actual_sha}. '
+                    f'If this error persists after multiple attempts, please report it as an issue on the GitHub repository.'
+                )
+                raise RuntimeError(error_msg)
 
               print(f'About to put file to S3: {bucket}/{filename_key}')
               s3 = boto3.client('s3')
