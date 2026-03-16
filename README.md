@@ -1,5 +1,6 @@
 # amazon-kinesis-data-generator
 
+
 Easily send data to your Kinesis Stream or Kinesis Firehose
 
 * * *
